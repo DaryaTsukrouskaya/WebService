@@ -84,7 +84,7 @@ public class UserController {
         userService.updateEmail(previousEmail, newEmail);
     }
 
-    @PutMapping("/authenticate")
+    @PostMapping("/authenticate")
     ResponseEntity<List<CategoryDto>> authenticate(String email, String password) {
         if (userService.authenticate(email, password) != null) {
             return new ResponseEntity<>(categoryService.read(), HttpStatus.OK);
