@@ -50,7 +50,7 @@ public class UserController {
         return new ResponseEntity<>(userService.read(), HttpStatus.OK);
     }
 
-    @PostMapping("/create")
+    @PostMapping("/create/{repPassword}")
     public void createUser(@Valid @RequestBody UserDto userDto, @PathVariable String repPassword, BindingResult bindingResult) throws ValidationException, UserAlreadyExistsException {
         if (!bindingResult.hasErrors()) {
             userService.register(userDto, repPassword);
@@ -73,13 +73,13 @@ public class UserController {
         userService.delete(id);
     }
 
-    @PutMapping("/updatePassword")
+    @PutMapping("/updatePassword/{email}/{password}")
     public void updatePassword(@PathVariable String password, @PathVariable String email) {
         userService.updatePassword(password, email);
 
     }
 
-    @PutMapping("/updateEmail")
+    @PutMapping("/updateEmail/{newEmail}/{previousEmail}")
     public void updateEmail(String previousEmail, String newEmail) {
         userService.updateEmail(previousEmail, newEmail);
     }
