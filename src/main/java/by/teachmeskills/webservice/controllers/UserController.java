@@ -84,8 +84,8 @@ public class UserController {
         userService.updateEmail(previousEmail, newEmail);
     }
 
-    @PostMapping("/authenticate")
-    ResponseEntity<List<CategoryDto>> authenticate(String email, String password) {
+    @GetMapping("/authenticate/{email}/{password}")
+    ResponseEntity<List<CategoryDto>> authenticate(@PathVariable String email, @PathVariable String password) {
         if (userService.authenticate(email, password) != null) {
             return new ResponseEntity<>(categoryService.read(), HttpStatus.OK);
         }
