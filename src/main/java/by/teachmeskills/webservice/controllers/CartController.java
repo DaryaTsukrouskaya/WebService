@@ -84,7 +84,7 @@ public class CartController {
     @PostMapping("/createOrder")
     public ResponseEntity<OrderDto> buy(@Valid @RequestBody CartDto cart, @Valid @RequestBody UserDto user, @PathVariable String address, BindingResult bindingResult) throws ValidationException, NoOrderAddressException {
         if (!bindingResult.hasErrors()) {
-            return new ResponseEntity<>(orderService.createUserOrder(user, cart, address), HttpStatus.OK);
+            return new ResponseEntity<>(orderService.createUserOrder(user, cart, address), HttpStatus.CREATED);
         } else {
             throw new ValidationException(bindingResult.getFieldError().getDefaultMessage());
         }
