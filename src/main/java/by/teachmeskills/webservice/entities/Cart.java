@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
 @Builder
 @Data
 public class Cart {
@@ -16,11 +17,6 @@ public class Cart {
 
     @NotNull
     private BigDecimal totalPrice;
-
-    public Cart() {
-        this.products = new ArrayList<>();
-        this.totalPrice = new BigDecimal(0);
-    }
 
     public void addProduct(Product product) {
         products.add(product);

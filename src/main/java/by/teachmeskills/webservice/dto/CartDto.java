@@ -10,19 +10,14 @@ import java.util.List;
 import java.util.Optional;
 
 @Builder
-@Data
+
 public class CartDto {
     @NotNull(message = "список продуктов CartDto не должен быть null")
     private List<ProductDto> products;
 
     @NotNull(message = "итоговая стоимость не должна быть null")
     private BigDecimal totalPrice;
-
-    public CartDto() {
-        this.products = new ArrayList<>();
-        this.totalPrice = new BigDecimal(0);
-    }
-
+    
     public void addProduct(ProductDto product) {
         products.add(product);
         BigDecimal changedPrice = totalPrice.add(product.getPrice());
