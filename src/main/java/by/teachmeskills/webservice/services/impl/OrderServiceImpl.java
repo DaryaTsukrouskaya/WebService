@@ -1,81 +1,89 @@
 package by.teachmeskills.webservice.services.impl;
 
-
-import by.teachmeskills.springbootproject.entities.Cart;
-import by.teachmeskills.springbootproject.entities.Order;
-import by.teachmeskills.springbootproject.entities.User;
-import by.teachmeskills.springbootproject.enums.PagesPathEnum;
-import by.teachmeskills.springbootproject.exceptions.DBConnectionException;
-import by.teachmeskills.springbootproject.exceptions.NoOrderAddressException;
-import by.teachmeskills.springbootproject.exceptions.UserAlreadyExistsException;
-import by.teachmeskills.springbootproject.repositories.OrderRepository;
-import by.teachmeskills.springbootproject.repositories.impl.OrderRepositoryImpl;
-import by.teachmeskills.springbootproject.services.CategoryService;
-import by.teachmeskills.springbootproject.services.OrderService;
-import by.teachmeskills.springbootproject.services.UserService;
+import by.teachmeskills.webservice.dto.CartDto;
+import by.teachmeskills.webservice.dto.OrderDto;
+import by.teachmeskills.webservice.dto.UserDto;
+import by.teachmeskills.webservice.dto.converters.OrderConverter;
+import by.teachmeskills.webservice.dto.converters.ProductConverter;
+import by.teachmeskills.webservice.dto.converters.UserConverter;
+import by.teachmeskills.webservice.entities.Order;
+import by.teachmeskills.webservice.exceptions.NoOrderAddressException;
+import by.teachmeskills.webservice.repositories.OrderRepository;
+import by.teachmeskills.webservice.repositories.impl.OrderRepositoryImpl;
+import by.teachmeskills.webservice.services.CategoryService;
+import by.teachmeskills.webservice.services.OrderService;
+import by.teachmeskills.webservice.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.ui.ModelMap;
-import org.springframework.web.servlet.ModelAndView;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Service
 
+@Service
 public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final UserService userService;
     private final CategoryService categoryService;
+    private final OrderConverter orderConverter;
+    private final UserConverter userConverter;
+    private final ProductConverter productConverter;
 
     @Autowired
-    public OrderServiceImpl(OrderRepositoryImpl orderRepository, UserServiceImpl userService, CategoryServiceImpl categoryService) {
+    public OrderServiceImpl(OrderRepositoryImpl orderRepository, UserServiceImpl userService, CategoryServiceImpl categoryService, OrderConverter orderConverter, UserConverter userConverter, ProductConverter productConverter) {
         this.orderRepository = orderRepository;
         this.userService = userService;
         this.categoryService = categoryService;
+        this.orderConverter = orderConverter;
+        this.userConverter = userConverter;
+        this.productConverter = productConverter;
     }
 
     @Override
-    public List<Order> read() throws DBConnectionException {
-        return orderRepository.read();
+    public List<OrderDto> read() {
+        return orderRepository.read().stream().map(orderConverter::toDto).toList();
     }
 
     @Override
-    public void create(Order order) throws DBConnectionException, UserAlreadyExistsException {
-        orderRepository.create(order);
+    public void create(OrderDto order) {
+        orderRepository.createOrUpdate(orderConverter.fromDto(order));
     }
 
     @Override
-    public void delete(int id) throws DBConnectionException {
+    public void delete(int id) {
         orderRepository.delete(id);
     }
 
     @Override
-    public Order findById(int id) throws DBConnectionException {
-        return orderRepository.findById(id);
+    public OrderDto findById(int id) {
+        return orderConverter.toDto(orderRepository.findById(id));
     }
 
     @Override
-    public List<Order> findByUserId(int id) throws DBConnectionException {
-        return orderRepository.findByUserId(id);
+    public List<OrderDto> findByUserId(int id) {
+        return orderRepository.findByUserId(id).stream().map(orderConverter::toDto).toList();
     }
 
     @Override
-    public ModelAndView createUserOrder(User user, Cart cart, String address) throws DBConnectionException, UserAlreadyExistsException, NoOrderAddressException {
+    public void update(OrderDto order) {
+        orderRepository.createOrUpdate(orderConverter.fromDto(order));
+    }
+
+    @Override
+    public OrderDto createUserOrder(UserDto user, CartDto cart, String address) throws NoOrderAddressException {
         if (address.isBlank()) {
             throw new NoOrderAddressException("Введите адрес для заказа!");
         }
-        Order order = new Order(cart.getTotalPrice(), LocalDateTime.now(), user, address, cart.getProducts());
-        orderRepository.create(order);
+        Order order = new Order(cart.getTotalPrice(), LocalDateTime.now(), userConverter.fromDto(user), address, cart.getProducts().stream().map(productConverter::fromDto).toList());
+        orderRepository.createOrUpdate(order);
         if (user.getOrders() == null || user.getOrders().isEmpty()) {
-            List<Order> orders = new ArrayList<>();
+            List<OrderDto> orders = new ArrayList<>();
             user.setOrders(orders);
         }
-        user.getOrders().add(order);
+        user.getOrders().add(orderConverter.toDto(order));
         userService.update(user);
-        ModelMap modelMap = new ModelMap();
-        modelMap.addAttribute("categories", categoryService.read());
-        return new ModelAndView(PagesPathEnum.HOME_PAGE.getPath());
+        cart.clear();
+        return orderConverter.toDto(order);
     }
 }

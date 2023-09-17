@@ -1,23 +1,22 @@
 package by.teachmeskills.webservice.services;
 
-
-import by.teachmeskills.springbootproject.entities.Cart;
-import by.teachmeskills.springbootproject.entities.Product;
-import by.teachmeskills.springbootproject.exceptions.DBConnectionException;
+import by.teachmeskills.webservice.dto.ProductDto;
 import org.springframework.web.servlet.ModelAndView;
 
-public interface ProductService extends BaseService<Product> {
-    Product findById(int id) throws DBConnectionException;
+import java.util.List;
 
-    ModelAndView getProductsByCategory(int id) throws DBConnectionException;
+public interface ProductService {
+    List<ProductDto> read();
 
-    ModelAndView addProductToCart(int id, Cart cart) throws DBConnectionException;
+    void create(ProductDto product);
 
-    ModelAndView deleteProductFromCart(int id, Cart cart);
+    public void delete(int id);
 
-    ModelAndView findProductByIdForProductPage(int id) throws DBConnectionException;
+    void update(ProductDto productDto);
 
-    ModelAndView clearCart(Cart cart);
+    ProductDto findById(int id);
 
-    public ModelAndView searchProductsPaged(int pageNumber, String keyWords) throws DBConnectionException;
+    List<ProductDto> getProductsByCategory(int id);
+
+    List<ProductDto> searchProductsPaged(int pageNumber, String keyWords);
 }

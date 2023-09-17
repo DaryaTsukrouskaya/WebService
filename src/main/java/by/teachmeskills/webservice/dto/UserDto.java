@@ -1,13 +1,5 @@
 package by.teachmeskills.webservice.dto;
 
-import by.teachmeskills.webservice.entities.BaseEntity;
-import by.teachmeskills.webservice.entities.Order;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -17,9 +9,7 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
@@ -53,7 +43,6 @@ public class UserDto {
     @Pattern(regexp = "\\S+",
             message = "пароль не должен содержать пробелы")
     private String password;
-
     private List<OrderDto> orders;
 }
 

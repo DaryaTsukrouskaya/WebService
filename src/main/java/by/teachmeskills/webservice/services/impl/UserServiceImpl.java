@@ -1,121 +1,89 @@
 package by.teachmeskills.webservice.services.impl;
 
-import by.teachmeskills.springbootproject.entities.Cart;
-import by.teachmeskills.springbootproject.entities.User;
-import by.teachmeskills.springbootproject.enums.PagesPathEnum;
-import by.teachmeskills.springbootproject.exceptions.DBConnectionException;
-import by.teachmeskills.springbootproject.exceptions.UserAlreadyExistsException;
-import by.teachmeskills.springbootproject.repositories.UserRepository;
-import by.teachmeskills.springbootproject.repositories.impl.UserRepositoryImpl;
-import by.teachmeskills.springbootproject.services.CategoryService;
-import by.teachmeskills.springbootproject.services.ProductService;
-import by.teachmeskills.springbootproject.services.UserService;
+import by.teachmeskills.webservice.dto.UserDto;
+import by.teachmeskills.webservice.dto.converters.UserConverter;
+import by.teachmeskills.webservice.entities.User;
+import by.teachmeskills.webservice.exceptions.UserAlreadyExistsException;
+import by.teachmeskills.webservice.repositories.UserRepository;
+import by.teachmeskills.webservice.repositories.impl.UserRepositoryImpl;
+import by.teachmeskills.webservice.services.CategoryService;
+import by.teachmeskills.webservice.services.ProductService;
+import by.teachmeskills.webservice.services.UserService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.ui.ModelMap;
 import org.springframework.web.servlet.ModelAndView;
 
+
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final CategoryService categoryService;
     private final ProductService productService;
+    private final UserConverter userConverter;
 
     @Autowired
-    public UserServiceImpl(UserRepositoryImpl userRepository, CategoryServiceImpl categoryRepository, ProductServiceImpl productService) {
+    public UserServiceImpl(UserRepositoryImpl userRepository, CategoryServiceImpl categoryRepository, ProductServiceImpl productService, UserConverter userConverter) {
         this.userRepository = userRepository;
         this.categoryService = categoryRepository;
         this.productService = productService;
+        this.userConverter = userConverter;
     }
 
     @Override
-    public List<User> read() throws DBConnectionException {
-        return userRepository.read();
+    public List<UserDto> read() {
+        return userRepository.read().stream().map(userConverter::toDto).toList();
     }
 
     @Override
-    public void create(User user) throws DBConnectionException, UserAlreadyExistsException {
-        userRepository.create(user);
-    }
-
-    @Override
-    public ModelAndView registerUser(User user, String repPassword) throws DBConnectionException {
-        ModelMap modelMap = new ModelMap();
-        if (repPassword.equals(user.getPassword())) {
-            try {
-                userRepository.create(user);
-                modelMap.addAttribute("categories", categoryService.read());
-            } catch (UserAlreadyExistsException e) {
-                modelMap.addAttribute("state", "Пользователь с такой почтой уже существует");
-                return new ModelAndView(PagesPathEnum.REGISTER_PAGE.getPath(), modelMap);
+    public void register(UserDto user, String repPassword) throws UserAlreadyExistsException {
+        try {
+            if (repPassword.equals(user.getPassword())) {
+                if (userRepository.findByEmail(user.getEmail()) != null) {
+                    throw new UserAlreadyExistsException("Такой пользователь уже существует");
+                }
             }
+        } catch (EntityNotFoundException e) {
+            userRepository.createOrUpdate(userConverter.fromDto(user));
         }
-        return new ModelAndView(PagesPathEnum.HOME_PAGE.getPath(), modelMap);
     }
 
+
     @Override
-    public void delete(int id) throws DBConnectionException {
+    public void delete(int id) {
         userRepository.delete(id);
 
     }
 
     @Override
-    public User findById(int id) throws DBConnectionException {
-        return userRepository.findById(id);
+    public UserDto findById(int id) {
+        return userConverter.toDto(userRepository.findById(id));
     }
 
     @Override
-    public ModelAndView authenticate(String email, String password) throws DBConnectionException {
-        ModelMap modelMap = new ModelMap();
-        User user;
+    public UserDto authenticate(String email, String password) {
+        User user = null;
         if (email != null && password != null) {
             user = userRepository.findByEmailAndPassword(email, password);
-            if (Optional.ofNullable(user).isPresent()) {
-                modelMap.addAttribute("user", user);
-                modelMap.addAttribute("categories", categoryService.read());
-            } else {
-                modelMap.addAttribute("state", "Неверный логин или пароль");
-                return new ModelAndView(PagesPathEnum.SIGN_IN_PAGE.getPath(), modelMap);
-            }
-        } else {
-            modelMap.addAttribute("state", "Заполните все поля формы");
-            return new ModelAndView(PagesPathEnum.SIGN_IN_PAGE.getPath(), modelMap);
         }
-        return new ModelAndView(PagesPathEnum.HOME_PAGE.getPath(), modelMap);
+        return userConverter.toDto(user);
     }
 
     @Override
-    public void updatePassword(String password, String email) throws DBConnectionException {
+    public void updatePassword(String password, String email) {
         userRepository.updatePassword(password, email);
 
     }
 
     @Override
-    public void updateEmail(String previousEmail, String newEmail) throws DBConnectionException {
+    public void updateEmail(String previousEmail, String newEmail) {
         userRepository.updateEmail(previousEmail, newEmail);
 
     }
-
     @Override
-    public ModelAndView userServicePage(User user) throws DBConnectionException {
-        ModelMap modelMap = new ModelMap();
-        modelMap.addAttribute("user", user);
-        modelMap.addAttribute("userOrders", user.getOrders());
-        return new ModelAndView(PagesPathEnum.USER_PROFILE_PAGE.getPath(), modelMap);
-    }
-
-    @Override
-    public ModelAndView checkout(Cart cart) {
-        ModelMap modelMap = new ModelMap();
-        modelMap.addAttribute("cart", cart);
-        return new ModelAndView(PagesPathEnum.CHECKOUT_PAGE.getPath(), modelMap);
-    }
-
-    @Override
-    public void update(User user) {
-        userRepository.update(user);
+    public void update(UserDto user) {
+        userRepository.createOrUpdate(userConverter.fromDto(user));
     }
 }

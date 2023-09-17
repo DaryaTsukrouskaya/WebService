@@ -1,23 +1,27 @@
 package by.teachmeskills.webservice.controllers;
 
-import by.teachmeskills.springbootproject.entities.KeyWords;
-import by.teachmeskills.springbootproject.enums.PagesPathEnum;
-import by.teachmeskills.springbootproject.exceptions.DBConnectionException;
-import by.teachmeskills.springbootproject.services.ProductService;
+
+import by.teachmeskills.webservice.dto.KeyWordsDto;
+import by.teachmeskills.webservice.dto.ProductDto;
+import by.teachmeskills.webservice.exceptions.ValidationException;
+import by.teachmeskills.webservice.services.ProductService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.SessionAttribute;
-import org.springframework.web.bind.annotation.SessionAttributes;
-import org.springframework.web.servlet.ModelAndView;
+
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/search")
-@SessionAttributes({"keyWords"})
 public class ProductSearchController {
     private final ProductService productService;
 
@@ -26,32 +30,32 @@ public class ProductSearchController {
         this.productService = productService;
     }
 
-    @GetMapping
-    public ModelAndView getSearchPage() {
-        return new ModelAndView(PagesPathEnum.SEARCH_PAGE.getPath());
-    }
 
-    @PostMapping
-    public ModelAndView searchResult(@ModelAttribute("keyWords") KeyWords keyWords) throws DBConnectionException {
-        return productService.searchProductsPaged(keyWords.getCurrentPageNumber(), keyWords.getKeyWords());
+    @PostMapping("/searchResult")
+    public ResponseEntity<List<ProductDto>> searchResult(@RequestBody @Valid KeyWordsDto keyWords, BindingResult bindingResult) throws ValidationException {
+        if (!bindingResult.hasErrors()) {
+            return new ResponseEntity<>(productService.searchProductsPaged(keyWords.getCurrentPageNumber(), keyWords.getKeyWords()), HttpStatus.OK);
+        } else {
+            throw new ValidationException(bindingResult.getFieldError().getDefaultMessage());
+        }
     }
 
     @GetMapping("/{pageNumber}")
-    public ModelAndView certainSearchPage(@PathVariable int pageNumber, @SessionAttribute("keyWords") KeyWords keyWords) throws DBConnectionException {
-        keyWords.setCurrentPageNumber(pageNumber);
-        if (keyWords.getCurrentPageNumber() > 3) {
-            keyWords.setCurrentPageNumber(keyWords.getCurrentPageNumber() - 1);
-            pageNumber -= 1;
+    public ResponseEntity<List<ProductDto>> certainSearchPage(@PathVariable int pageNumber, @Valid KeyWordsDto keyWords, BindingResult bindingResult) throws ValidationException {
+        if (!bindingResult.hasErrors()) {
+            keyWords.setCurrentPageNumber(pageNumber);
+            if (keyWords.getCurrentPageNumber() > 3) {
+                keyWords.setCurrentPageNumber(keyWords.getCurrentPageNumber() - 1);
+                pageNumber -= 1;
+            }
+            if (keyWords.getCurrentPageNumber() < 1) {
+                keyWords.setCurrentPageNumber(keyWords.getCurrentPageNumber() + 1);
+                pageNumber += 1;
+            }
+            return new ResponseEntity<>(productService.searchProductsPaged(pageNumber, keyWords.getKeyWords()), HttpStatus.OK);
+        } else {
+            throw new ValidationException(bindingResult.getFieldError().getDefaultMessage());
         }
-        if (keyWords.getCurrentPageNumber() < 1) {
-            keyWords.setCurrentPageNumber(keyWords.getCurrentPageNumber() + 1);
-            pageNumber += 1;
-        }
-        return productService.searchProductsPaged(pageNumber, keyWords.getKeyWords());
     }
 
-    @ModelAttribute("keyWords")
-    public KeyWords setShoppingCart() {
-        return new KeyWords();
-    }
 }

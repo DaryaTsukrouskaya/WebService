@@ -1,111 +1,77 @@
 package by.teachmeskills.webservice.services.impl;
 
-import by.teachmeskills.springbootproject.entities.Cart;
-import by.teachmeskills.springbootproject.entities.Product;
-import by.teachmeskills.springbootproject.enums.PagesPathEnum;
-import by.teachmeskills.springbootproject.exceptions.DBConnectionException;
-import by.teachmeskills.springbootproject.exceptions.UserAlreadyExistsException;
-import by.teachmeskills.springbootproject.repositories.ProductRepository;
-import by.teachmeskills.springbootproject.repositories.impl.ProductRepositoryImpl;
-import by.teachmeskills.springbootproject.services.ProductService;
+import by.teachmeskills.webservice.dto.CategoryDto;
+import by.teachmeskills.webservice.dto.ProductDto;
+import by.teachmeskills.webservice.dto.converters.ProductConverter;
+import by.teachmeskills.webservice.entities.Category;
+import by.teachmeskills.webservice.entities.Product;
+import by.teachmeskills.webservice.repositories.ProductRepository;
+import by.teachmeskills.webservice.repositories.impl.ProductRepositoryImpl;
+import by.teachmeskills.webservice.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.ui.ModelMap;
-import org.springframework.web.servlet.ModelAndView;
+
 
 import java.util.List;
 
 @Service
 public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
+    private final ProductConverter productConverter;
 
     @Autowired
-    public ProductServiceImpl(ProductRepositoryImpl productRepository) {
+    public ProductServiceImpl(ProductRepositoryImpl productRepository, ProductConverter productConverter) {
         this.productRepository = productRepository;
+        this.productConverter = productConverter;
     }
 
 
     @Override
-    public List<Product> read() throws DBConnectionException {
-        return productRepository.read();
+    public List<ProductDto> read() {
+        return productRepository.read().stream().map(productConverter::toDto).toList();
     }
 
     @Override
-    public void create(Product product) throws DBConnectionException, UserAlreadyExistsException {
-        productRepository.create(product);
+    public void create(ProductDto product) {
+        productRepository.createOrUpdate(productConverter.fromDto(product));
 
     }
 
     @Override
-    public void delete(int id) throws DBConnectionException {
+    public void delete(int id) {
         productRepository.delete(id);
     }
 
     @Override
-    public Product findById(int id) throws DBConnectionException {
-        return productRepository.findById(id);
+    public ProductDto findById(int id) {
+        return productConverter.toDto(productRepository.findById(id));
     }
 
     @Override
-    public ModelAndView getProductsByCategory(int id) throws DBConnectionException {
-        ModelMap modelMap = new ModelMap();
-        modelMap.addAttribute("categoryProducts", productRepository.getProductsByCategory(id));
-        return new ModelAndView(PagesPathEnum.CATEGORY_PAGE.getPath(), modelMap);
+    public List<ProductDto> getProductsByCategory(int id) {
+        return productRepository.getProductsByCategory(id).stream().map(productConverter::toDto).toList();
+
     }
 
     @Override
-    public ModelAndView addProductToCart(int productId, Cart cart) throws DBConnectionException {
-        ModelMap modelMap = new ModelMap();
-        Product product = findById(productId);
-        cart.addProduct(product);
-        modelMap.addAttribute("cart", cart);
-        modelMap.addAttribute("product", product);
-        return new ModelAndView(PagesPathEnum.PRODUCT_PAGE.getPath(), modelMap);
+    public void update(ProductDto productDto) {
+        Product product = productRepository.findById(productConverter.fromDto(productDto).getId());
+        product.setName(productDto.getName());
+        product.setDescription(productDto.getDescription());
+        product.setPrice(productDto.getPrice());
+        productRepository.createOrUpdate(product);
     }
 
     @Override
-    public ModelAndView deleteProductFromCart(int productId, Cart cart) {
-        ModelMap modelMap = new ModelMap();
-        cart.removeProduct(productId);
-        modelMap.addAttribute("cart", cart);
-        if (cart.getProducts().isEmpty()) {
-            return new ModelAndView(PagesPathEnum.EMPTY_CART_PAGE.getPath());
-        }
-        return new ModelAndView(PagesPathEnum.CART_PAGE.getPath(), modelMap);
-    }
-
-    @Override
-    public ModelAndView clearCart(Cart cart) {
-        cart.clear();
-        ModelMap modelMap = new ModelMap();
-        if (cart.getProducts().isEmpty()) {
-            return new ModelAndView(PagesPathEnum.EMPTY_CART_PAGE.getPath());
-        }
-        return new ModelAndView(PagesPathEnum.CART_PAGE.getPath(), modelMap.addAttribute("cart", cart));
-    }
-
-
-    @Override
-    public ModelAndView findProductByIdForProductPage(int id) throws DBConnectionException {
-        ModelMap modelMap = new ModelMap();
-        Product product = findById(id);
-        modelMap.addAttribute("categoryName", product.getName());
-        modelMap.addAttribute("product", product);
-        return new ModelAndView(PagesPathEnum.PRODUCT_PAGE.getPath(), modelMap);
-    }
-
-    @Override
-    public ModelAndView searchProductsPaged(int pageNumber, String keyWords) throws DBConnectionException {
+    public List<ProductDto> searchProductsPaged(int pageNumber, String keyWords) {
         Long totalRecords;
-        List<Product> products;
+        List<Product> products = null;
         int pageMaxResult;
-        ModelMap modelMap = new ModelMap();
         if (keyWords != null) {
             totalRecords = productRepository.findProductsQuantityByKeywords(keyWords);
             pageMaxResult = (int) (totalRecords / 3);
             products = productRepository.findProductsByKeywords(keyWords, pageNumber, pageMaxResult);
-            modelMap.addAttribute("products", products);
         }
-        return new ModelAndView(PagesPathEnum.SEARCH_PAGE.getPath(), modelMap);
+        return products.stream().map(productConverter::toDto).toList();
     }
 }

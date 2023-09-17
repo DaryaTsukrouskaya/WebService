@@ -1,8 +1,6 @@
 package by.teachmeskills.webservice.dto.converters;
 
-import by.teachmeskills.webservice.dto.KeyWordsDto;
 import by.teachmeskills.webservice.dto.UserDto;
-import by.teachmeskills.webservice.entities.KeyWords;
 import by.teachmeskills.webservice.entities.User;
 import org.springframework.stereotype.Component;
 

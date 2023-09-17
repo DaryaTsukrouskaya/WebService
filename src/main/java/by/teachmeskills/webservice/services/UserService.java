@@ -1,23 +1,24 @@
 package by.teachmeskills.webservice.services;
 
-import by.teachmeskills.springbootproject.entities.Cart;
-import by.teachmeskills.springbootproject.entities.User;
-import by.teachmeskills.springbootproject.exceptions.DBConnectionException;
-import org.springframework.web.servlet.ModelAndView;
 
-public interface UserService extends BaseService<User> {
-    ModelAndView registerUser(User user, String repPassword) throws DBConnectionException;
+import by.teachmeskills.webservice.dto.UserDto;
+import by.teachmeskills.webservice.exceptions.UserAlreadyExistsException;
 
-    User findById(int id) throws DBConnectionException;
+import java.util.List;
 
-    ModelAndView authenticate(String email, String password) throws DBConnectionException;
+public interface UserService {
+    List<UserDto> read();
 
-    void updatePassword(String password, String email) throws DBConnectionException;
+    void delete(int id);
 
-    void updateEmail(String previousEmail, String newEmail) throws DBConnectionException;
+    void register(UserDto user, String repPassword) throws UserAlreadyExistsException;
 
-    ModelAndView userServicePage(User user) throws DBConnectionException;
-    ModelAndView checkout(Cart cart);
-    void update(User user);
+    UserDto findById(int id);
 
+    UserDto authenticate(String email, String password);
+
+    void updatePassword(String password, String email);
+
+    void updateEmail(String previousEmail, String newEmail);
+    void update(UserDto user);
 }

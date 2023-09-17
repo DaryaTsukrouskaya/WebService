@@ -2,14 +2,24 @@ package by.teachmeskills.webservice.repositories;
 
 
 import by.teachmeskills.webservice.entities.User;
+import jakarta.persistence.EntityNotFoundException;
+
+import java.util.List;
 
 public interface UserRepository {
-    User findById(int id) throws DBConnectionException;
+    void createOrUpdate(User user);
 
-    User findByEmailAndPassword(String email, String password) throws DBConnectionException;
+    void delete(int id);
 
-    void updatePassword(String password, String email) throws DBConnectionException;
+    public List<User> read();
 
-    void updateEmail(String previousEmail, String newEmail) throws DBConnectionException;
-    void update(User user);
+    User findByEmail(String email);
+
+    User findById(int id);
+
+    User findByEmailAndPassword(String email, String password) throws EntityNotFoundException;
+
+    void updatePassword(String password, String email);
+
+    void updateEmail(String previousEmail, String newEmail);
 }

@@ -1,18 +1,19 @@
 package by.teachmeskills.webservice.controllers;
 
-import by.teachmeskills.springbootproject.entities.User;
-import by.teachmeskills.springbootproject.exceptions.DBConnectionException;
-import by.teachmeskills.springbootproject.services.UserService;
-import by.teachmeskills.springbootproject.services.impl.UserServiceImpl;
+import by.teachmeskills.webservice.dto.UserDto;
+import by.teachmeskills.webservice.services.UserService;
+import by.teachmeskills.webservice.services.impl.UserServiceImpl;
+import jakarta.validation.constraints.Min;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.SessionAttribute;
-import org.springframework.web.servlet.ModelAndView;
 
 
 @RestController
 @RequestMapping("/profile")
+@Validated
 public class UserProfileController {
     private final UserService userService;
 
@@ -20,9 +21,8 @@ public class UserProfileController {
         this.userService = userService;
     }
 
-
-    @GetMapping
-    public ModelAndView getUserPage(@SessionAttribute("user") User user) throws DBConnectionException {
-        return userService.userServicePage(user);
+    @GetMapping("/id")
+    public UserDto getUserData(@PathVariable @Min(0) int id) {
+        return userService.findById(id);
     }
 }

@@ -1,54 +1,51 @@
 package by.teachmeskills.webservice.services.impl;
 
 
-import by.teachmeskills.springbootproject.entities.Category;
-import by.teachmeskills.springbootproject.enums.PagesPathEnum;
-import by.teachmeskills.springbootproject.exceptions.DBConnectionException;
-import by.teachmeskills.springbootproject.exceptions.UserAlreadyExistsException;
-import by.teachmeskills.springbootproject.repositories.CategoryRepository;
-import by.teachmeskills.springbootproject.repositories.impl.CategoryRepositoryImpl;
-import by.teachmeskills.springbootproject.services.CategoryService;
+import by.teachmeskills.webservice.dto.CategoryDto;
+import by.teachmeskills.webservice.dto.converters.CategoryConverter;
+import by.teachmeskills.webservice.entities.Category;
+import by.teachmeskills.webservice.repositories.CategoryRepository;
+import by.teachmeskills.webservice.services.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.ui.ModelMap;
-import org.springframework.web.servlet.ModelAndView;
 
 import java.util.List;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
+    private final CategoryConverter categoryConverter;
 
     @Autowired
-    public CategoryServiceImpl(CategoryRepositoryImpl categoryRepository) {
+    public CategoryServiceImpl(CategoryRepository categoryRepository, CategoryConverter categoryConverter) {
         this.categoryRepository = categoryRepository;
-    }
-
-
-    @Override
-    public List<Category> read() throws DBConnectionException {
-        return categoryRepository.read();
+        this.categoryConverter = categoryConverter;
     }
 
     @Override
-    public void create(Category category) throws DBConnectionException, UserAlreadyExistsException {
-        categoryRepository.create(category);
+    public List<CategoryDto> read() {
+        return categoryRepository.read().stream().map(categoryConverter::toDto).toList();
     }
 
     @Override
-    public void delete(int id) throws DBConnectionException {
+    public void create(CategoryDto category) {
+        categoryRepository.createOrUpdate(categoryConverter.fromDto(category));
+    }
+
+    @Override
+    public void update(CategoryDto categoryDto) {
+        Category category = categoryRepository.findById(categoryConverter.fromDto(categoryDto).getId());
+        category.setName(categoryDto.getName());
+        categoryRepository.createOrUpdate(category);
+    }
+
+    @Override
+    public void delete(int id) {
         categoryRepository.delete(id);
     }
 
-
-    public Category findById(int id) throws DBConnectionException {
-        return categoryRepository.findById(id);
-    }
-
-    public ModelAndView getCategoriesData() throws DBConnectionException {
-        ModelMap modelMap = new ModelMap();
-        modelMap.addAttribute("categories", categoryRepository.read());
-        return new ModelAndView(PagesPathEnum.HOME_PAGE.getPath(), modelMap);
-
+    @Override
+    public CategoryDto findById(int id) {
+        return categoryConverter.toDto(categoryRepository.findById(id));
     }
 }

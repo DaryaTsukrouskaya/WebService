@@ -2,16 +2,23 @@ package by.teachmeskills.webservice.repositories;
 
 
 import by.teachmeskills.webservice.entities.Product;
+import jakarta.persistence.EntityNotFoundException;
 
 import java.util.List;
 
-public interface ProductRepository extends BaseRepository<Product> {
-    Product findById(int id) throws DBConnectionException;
+public interface ProductRepository {
+    void createOrUpdate(Product product) throws EntityNotFoundException;
 
-    List<Product> getProductsByCategory(int id) throws DBConnectionException;
+    void delete(int id);
 
-    List<Product> findProductsByKeywords(String words, int pageNumber, int maxResult) throws DBConnectionException;
+    List<Product> read();
 
-    Long findProductsQuantityByKeywords(String words) throws DBConnectionException;
+    Product findById(int id);
+
+    List<Product> getProductsByCategory(int id);
+
+    List<Product> findProductsByKeywords(String words, int pageNumber, int maxResult);
+
+    Long findProductsQuantityByKeywords(String words);
 
 }

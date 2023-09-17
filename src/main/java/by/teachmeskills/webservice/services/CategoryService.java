@@ -1,8 +1,18 @@
 package by.teachmeskills.webservice.services;
 
-import by.teachmeskills.springbootproject.entities.Category;
-import by.teachmeskills.springbootproject.exceptions.DBConnectionException;
 
-public interface CategoryService extends BaseService<Category> {
-    Category findById(int id) throws DBConnectionException;
+import by.teachmeskills.webservice.dto.CategoryDto;
+
+import java.util.List;
+
+public interface CategoryService {
+    List<CategoryDto> read();
+
+    public void create(CategoryDto category);
+
+    void delete(int id);
+
+    void update(CategoryDto categoryDto);
+
+    CategoryDto findById(int id);
 }

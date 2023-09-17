@@ -1,19 +1,26 @@
 package by.teachmeskills.webservice.services;
 
+import by.teachmeskills.webservice.dto.CartDto;
+import by.teachmeskills.webservice.dto.OrderDto;
+import by.teachmeskills.webservice.dto.ProductDto;
+import by.teachmeskills.webservice.dto.UserDto;
+import by.teachmeskills.webservice.exceptions.NoOrderAddressException;
 
-import by.teachmeskills.springbootproject.entities.Cart;
-import by.teachmeskills.springbootproject.entities.Order;
-import by.teachmeskills.springbootproject.entities.User;
-import by.teachmeskills.springbootproject.exceptions.DBConnectionException;
-import by.teachmeskills.springbootproject.exceptions.NoOrderAddressException;
-import by.teachmeskills.springbootproject.exceptions.UserAlreadyExistsException;
-import org.springframework.web.servlet.ModelAndView;
 
 import java.util.List;
 
-public interface OrderService extends BaseService<Order> {
-    Order findById(int id) throws DBConnectionException;
+public interface OrderService {
+    public List<OrderDto> read();
 
-    List<Order> findByUserId(int id) throws DBConnectionException;
-    ModelAndView createUserOrder(User user, Cart cart, String address) throws DBConnectionException, UserAlreadyExistsException, NoOrderAddressException;
+    void create(OrderDto order);
+
+    public void delete(int id);
+
+    void update(OrderDto order);
+
+    OrderDto findById(int id);
+
+    List<OrderDto> findByUserId(int id);
+
+    OrderDto createUserOrder(UserDto user, CartDto cart, String address) throws NoOrderAddressException;
 }

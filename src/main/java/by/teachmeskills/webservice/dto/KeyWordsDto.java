@@ -14,11 +14,12 @@ import lombok.experimental.SuperBuilder;
 public class KeyWordsDto {
     @NotNull(message = "поле KeyWordsDto не должно быть null")
     @Min(value = 3, message = "длина меньше 3")
-        private String keyWords;
-        private int currentPageNumber;
+    private String keyWords;
+    @NotNull(message = "поле номер текущей страницы не должно быть null")
+    private int currentPageNumber;
 
-        public KeyWordsDto() {
-            this.currentPageNumber = 1;
-        }
+    public KeyWordsDto() {
+        this.currentPageNumber = 1;
+    }
 
 }
