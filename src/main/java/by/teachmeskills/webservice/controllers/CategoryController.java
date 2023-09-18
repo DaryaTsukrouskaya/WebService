@@ -8,9 +8,15 @@ import by.teachmeskills.webservice.services.CategoryService;
 import by.teachmeskills.webservice.services.ProductService;
 import by.teachmeskills.webservice.services.impl.CategoryServiceImpl;
 import by.teachmeskills.webservice.services.impl.ProductServiceImpl;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -30,6 +36,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/category")
 @Validated
+@Tag(name = "category", description = "Category endpoints")
 public class CategoryController {
     private final ProductService productService;
     private final CategoryService categoryService;
@@ -39,16 +46,61 @@ public class CategoryController {
         this.categoryService = categoryService;
     }
 
+    @Operation(
+            summary = "Find all category products",
+            description = "Find all category products",
+            tags = {"category"})
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Products were found",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = CategoryDto.class)))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Products not fount - server error"
+            )
+    })
     @GetMapping("/products/{id}")
     public ResponseEntity<List<ProductDto>> getCategoryProducts(@PathVariable @Min(0) int id) {
         return new ResponseEntity<>(productService.getProductsByCategory(id), HttpStatus.OK);
     }
 
+    @Operation(
+            summary = "Find all categories",
+            description = "Find all existed categories in Eshop",
+            tags = {"category"})
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "All categories were found",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = CategoryDto.class)))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Categories not found - server error"
+            )
+    })
     @GetMapping("/all")
     public ResponseEntity<List<CategoryDto>> getAllCategories() {
         return new ResponseEntity<>(categoryService.read(), HttpStatus.OK);
     }
 
+    @Operation(
+            summary = "Find certain category",
+            description = "Find certain existed category in Eshop by its id",
+            tags = {"category"})
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Category was found by its id",
+                    content = @Content(schema = @Schema(contentSchema = CategoryDto.class))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Category not found - server error"
+            )
+    })
     @GetMapping("/get/{id}")
     public ResponseEntity<CategoryDto> getCategoryById(@PathVariable @Min(0) int id) {
         return Optional.ofNullable(categoryService.findById(id))
@@ -56,6 +108,21 @@ public class CategoryController {
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
+    @Operation(
+            summary = "Create category",
+            description = "Create new category",
+            tags = {"category"})
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "Category was created",
+                    content = @Content(schema = @Schema(contentSchema = CategoryDto.class))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Category not created - server error"
+            )
+    })
     @PostMapping("/create")
     public void createCategory(@Valid @RequestBody CategoryDto categoryDto, BindingResult bindingResult) throws ValidationException {
         if (!bindingResult.hasErrors()) {
@@ -65,6 +132,21 @@ public class CategoryController {
         }
     }
 
+    @Operation(
+            summary = "Update category",
+            description = "Update existed category",
+            tags = {"category"})
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Category was updated",
+                    content = @Content(schema = @Schema(contentSchema = CategoryDto.class))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Category was not updated - server error"
+            )
+    })
     @PutMapping("/update")
     public void updateCategory(@RequestBody @Valid CategoryDto categoryDto, BindingResult bindingResult) throws ValidationException {
         if (!bindingResult.hasErrors()) {
@@ -74,6 +156,20 @@ public class CategoryController {
         }
     }
 
+    @Operation(
+            summary = "Delete category",
+            description = "Delete existed category from eshop",
+            tags = {"category"})
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Category was deleted"
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Category was not deleted - server error"
+            )
+    })
     @DeleteMapping("/delete/{id}")
     public void deleteCategory(@PathVariable @Min(0) Integer id) {
         categoryService.delete(id);

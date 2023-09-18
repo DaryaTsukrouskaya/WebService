@@ -1,10 +1,18 @@
 package by.teachmeskills.webservice.controllers;
 
 
+import by.teachmeskills.webservice.dto.CategoryDto;
 import by.teachmeskills.webservice.dto.ProductDto;
 import by.teachmeskills.webservice.exceptions.ValidationException;
 import by.teachmeskills.webservice.services.ProductService;
 import by.teachmeskills.webservice.services.impl.ProductServiceImpl;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +34,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/product")
 @Valid
+@Tag(name = "product", description = "Product endpoints")
 public class ProductController {
     private final ProductService productService;
 
@@ -34,7 +43,21 @@ public class ProductController {
         this.productService = productService;
     }
 
-
+    @Operation(
+            summary = "Find certain product",
+            description = "Find certain existed product in Eshop by its id",
+            tags = {"product"})
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Product was found by its id",
+                    content = @Content(schema = @Schema(contentSchema = ProductDto.class))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Product not found - server error"
+            )
+    })
     @GetMapping("/get/{id}")
     public ResponseEntity<ProductDto> getProduct(@PathVariable @Min(0) int id) {
         return Optional.ofNullable(productService.findById(id))
@@ -42,11 +65,41 @@ public class ProductController {
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
+    @Operation(
+            summary = "Find all products",
+            description = "Find all products",
+            tags = {"product"})
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Products were found",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = ProductDto.class)))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Products not found - server error"
+            )
+    })
     @GetMapping("/all")
     public ResponseEntity<List<ProductDto>> getAllProducts() {
         return new ResponseEntity<>(productService.read(), HttpStatus.OK);
     }
 
+    @Operation(
+            summary = "Create product",
+            description = "Create new product",
+            tags = {"product"})
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "Product was created",
+                    content = @Content(schema = @Schema(contentSchema = ProductDto.class))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Product was not created - server error"
+            )
+    })
     @PostMapping("/create")
     public void createProduct(@Valid @RequestBody ProductDto productDto, BindingResult bindingResult) throws ValidationException {
         if (!bindingResult.hasErrors()) {
@@ -56,6 +109,21 @@ public class ProductController {
         }
     }
 
+    @Operation(
+            summary = "Update product",
+            description = "Update existed product",
+            tags = {"product"})
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Product was updated",
+                    content = @Content(schema = @Schema(contentSchema = ProductDto.class))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Product was not updated - server error"
+            )
+    })
     @PutMapping("/update")
     public void updateProduct(@RequestBody @Valid ProductDto productDto, BindingResult bindingResult) throws ValidationException {
         if (!bindingResult.hasErrors()) {
@@ -65,11 +133,40 @@ public class ProductController {
         }
     }
 
+    @Operation(
+            summary = "Delete product",
+            description = "Delete existed product from eshop",
+            tags = {"product"})
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Product was deleted"
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Product was not deleted - server error"
+            )
+    })
     @DeleteMapping("/delete/{id}")
     public void deleteProduct(@PathVariable @Min(0) Integer id) {
         productService.delete(id);
     }
 
+    @Operation(
+            summary = "Find all category products",
+            description = "Find all category products",
+            tags = {"product"})
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Products were found",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = ProductDto.class)))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Products not fount - server error"
+            )
+    })
     @GetMapping("/category/{id}")
     public ResponseEntity<List<ProductDto>> getProductsByCategory(@PathVariable @Min(0) int id) {
         return new ResponseEntity<>(productService.getProductsByCategory(id), HttpStatus.OK);
