@@ -16,11 +16,10 @@ import java.util.List;
 @Data
 @SuperBuilder
 public class CategoryDto {
-    @NotNull(message = "поле id категории не должно быть null")
     private int id;
-    @NotNull(message = "поле имя категории не должно быть null")
-    @Size(min = 1, max = 60, message = "пустое или длиннее 60 символов")
+    @NotNull(message = "имя категории не должно быть пустым")
+    @Size(min = 1, max = 60, message = "имя категории пустое или длиннее 60 символов")
     private String name;
-    @NotNull(message = "поле список продуктов не должно быть null")
+    @NotNull(message = "список продуктов не должно быть пустым")
     List<ProductDto> products;
 }

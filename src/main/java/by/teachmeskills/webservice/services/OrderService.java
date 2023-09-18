@@ -14,7 +14,7 @@ public interface OrderService {
 
     void create(OrderDto order);
 
-    public void delete(int id);
+    void delete(int id);
 
     void update(OrderDto order);
 

@@ -30,8 +30,7 @@ public class OrderRepositoryImpl implements OrderRepository {
     public void createOrUpdate(Order order) {
         try {
             entityManager.merge(order);
-        } catch (
-                PersistenceException ex) {
+        } catch (PersistenceException ex) {
             log.warn("Exception while creating or updating order" + ex.getMessage());
             throw new EntityNotFoundException("Error while creating or updating order");
         }
@@ -52,8 +51,7 @@ public class OrderRepositoryImpl implements OrderRepository {
     public List<Order> read() {
         try {
             return entityManager.createQuery("select o from Order o").getResultList();
-        } catch (
-                PersistenceException ex) {
+        } catch (PersistenceException ex) {
             log.warn("Exception while getting all orders" + ex.getMessage());
             throw new EntityNotFoundException("Error while getting all orders");
         }
@@ -63,8 +61,7 @@ public class OrderRepositoryImpl implements OrderRepository {
     public Order findById(int id) {
         try {
             return entityManager.find(Order.class, id);
-        } catch (
-                PersistenceException ex) {
+        } catch (PersistenceException ex) {
             log.warn("Exception while finding order by id" + ex.getMessage());
             throw new EntityNotFoundException(String.format("No order with id %d found", id));
         }

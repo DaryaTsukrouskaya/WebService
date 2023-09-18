@@ -10,7 +10,7 @@ public interface ProductService {
 
     void create(ProductDto product);
 
-    public void delete(int id);
+    void delete(int id);
 
     void update(ProductDto productDto);
 

@@ -8,11 +8,11 @@ import lombok.Data;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
+
 @Component
 public class ProductConverter {
     private final CategoryRepository categoryRepository;
     private final ProductRepository productRepository;
-
 
     public ProductConverter(CategoryRepository categoryRepository, ProductRepository productRepository) {
         this.categoryRepository = categoryRepository;

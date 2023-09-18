@@ -7,19 +7,16 @@ import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 
 public interface UserRepository {
-    void createOrUpdate(User user);
+    void create(User user);
 
     void delete(int id);
 
-    public List<User> read();
-
-    User findByEmail(String email);
+    List<User> read();
 
     User findById(int id);
 
     User findByEmailAndPassword(String email, String password) throws EntityNotFoundException;
 
-    void updatePassword(String password, String email);
+    void update(User user);
 
-    void updateEmail(String previousEmail, String newEmail);
 }

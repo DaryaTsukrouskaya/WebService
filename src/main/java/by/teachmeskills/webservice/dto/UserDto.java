@@ -1,7 +1,6 @@
 package by.teachmeskills.webservice.dto;
 
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
@@ -20,29 +19,32 @@ import java.util.List;
 @SuperBuilder
 @NoArgsConstructor
 public class UserDto {
-    @NotNull(message = "id поле в UserDto не должно быть null")
-    @Min(value = 1, message = "Id поле в UserDto меньше 1")
-    private Integer id;
-    @NotNull(message = "имя не должно быть null")
+    private int id;
+    @NotNull(message = "имя не должно быть пустым")
     @NotBlank(message = "имя не должно быть пустым")
     @Pattern(regexp = "^[а-яА-Яa-zA-Z]+$", message = "некорректное имя")
     private String name;
-    @NotNull(message = "фамилия не должна быть null")
+    @NotNull(message = "фамилия не должна быть пустым")
     @NotBlank(message = "фамилия не должна быть пустой")
     @Pattern(regexp = "^[а-яА-Яa-zA-Z]+$", message = "некорректная фамилия")
     private String surname;
-    @NotNull(message = "заполните поле")
+    @NotNull(message = "дата рождения не должна быть пустой")
     @Past(message = "указанная дата еще не наступила")
     private LocalDate birthDate;
-    @Email(message = "некорректный пароль")
+    @Email(message = "некорректный формат email")
     @NotBlank(message = "email не должен быть пустым")
-    @NotNull(message = "email не должен быть null")
+    @NotNull(message = "email не должен быть пустым")
     private String email;
-    @NotNull(message = "пароль не должен быть null")
+    @NotNull(message = "пароль не должен быть пустым")
     @Size(min = 6, max = 10, message = "длина пароля должна быть от 6 до 10 символов")
     @Pattern(regexp = "\\S+",
             message = "пароль не должен содержать пробелы")
     private String password;
+    @NotNull(message = "повторный пароль не должен быть пустым")
+    @Size(min = 6, max = 10, message = "длина пароля должна быть от 6 до 10 символов")
+    @Pattern(regexp = "\\S+",
+            message = "пароль не должен содержать пробелы")
+    private String repPassword;
     private List<OrderDto> orders;
 }
 

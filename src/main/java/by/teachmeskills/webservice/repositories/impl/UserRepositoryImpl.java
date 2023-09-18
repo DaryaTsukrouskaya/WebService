@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
 
 @Repository
@@ -28,11 +29,10 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public void createOrUpdate(User user) {
+    public void create(User user) {
         try {
-            entityManager.merge(user);
-        } catch (
-                PersistenceException ex) {
+            entityManager.persist(user);
+        } catch (PersistenceException ex) {
             log.warn("Exception while creating or updating user" + ex.getMessage());
             throw new EntityNotFoundException("Error while creating or updating category");
         }
@@ -43,8 +43,7 @@ public class UserRepositoryImpl implements UserRepository {
         try {
             User user = entityManager.find(User.class, id);
             entityManager.remove(user);
-        } catch (
-                PersistenceException ex) {
+        } catch (PersistenceException ex) {
             log.warn("Exception while deleting user" + ex.getMessage());
             throw new EntityNotFoundException("Error while deleting user");
         }
@@ -54,8 +53,7 @@ public class UserRepositoryImpl implements UserRepository {
     public List<User> read() {
         try {
             return entityManager.createQuery("select u from User u").getResultList();
-        } catch (
-                PersistenceException ex) {
+        } catch (PersistenceException ex) {
             log.warn("Exception while getting all users" + ex.getMessage());
             throw new EntityNotFoundException("Error while getting all users");
         }
@@ -85,42 +83,12 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public User findByEmail(String email) throws EntityNotFoundException {
+    public void update(User user) {
         try {
-            Query query = entityManager.createQuery("select u from User u where u.email =: email");
-            query.setParameter("email", email);
-            return (User) query.getSingleResult();
+            entityManager.merge(user);
         } catch (PersistenceException ex) {
-            log.warn(String.format("No user with email %s found", email) + ex.getMessage());
-            throw new EntityNotFoundException(String.format("No user with email %s found", email));
-        }
-    }
-
-    @Override
-    public void updatePassword(String password, String email) {
-        try {
-            Query query = entityManager.createQuery("update User u set u.password=:password where u.email=: email");
-            query.setParameter("password", password);
-            query.setParameter("email", email);
-            query.executeUpdate();
-        } catch (PersistenceException ex) {
-            log.warn(String.format("No user with email %s found", email) + ex.getMessage());
-            throw new EntityNotFoundException(String.format("No user with email %s found", email));
-        }
-
-    }
-
-
-    @Override
-    public void updateEmail(String previousEmail, String newEmail) {
-        try {
-            Query query = entityManager.createQuery("update User u set u.email=:newEmail where u.email=: previousEmail");
-            query.setParameter("newEmail", newEmail);
-            query.setParameter("previousEmail", previousEmail);
-            query.executeUpdate();
-        } catch (PersistenceException ex) {
-            log.warn(String.format("No user with email %s found", previousEmail) + ex.getMessage());
-            throw new EntityNotFoundException(String.format("No user with email %s found", previousEmail));
+            log.warn("Exception while creating or updating user" + ex.getMessage());
+            throw new EntityNotFoundException("Error while creating or updating category");
         }
     }
 }

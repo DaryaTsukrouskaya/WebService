@@ -23,13 +23,13 @@ public class GlobalControllerExceptionHandler {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.FORBIDDEN);
     }
 
-    @ExceptionHandler(UserAlreadyExistsException.class)
-    public ResponseEntity<String> handleUserAlreadyExistsException(UserAlreadyExistsException ex) {
+    @ExceptionHandler(NoOrderAddressException.class)
+    public ResponseEntity<String> NoOrderAddressException(NoOrderAddressException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.FORBIDDEN);
     }
 
-    @ExceptionHandler(NoOrderAddressException.class)
-    public ResponseEntity<String> NoOrderAddressException(NoOrderAddressException ex) {
+    @ExceptionHandler(IncorrectRepPasswordException.class)
+    public ResponseEntity<String> NoOrderAddressException(IncorrectRepPasswordException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.FORBIDDEN);
     }
 }

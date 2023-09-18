@@ -34,7 +34,6 @@ public class CategoryController {
     private final ProductService productService;
     private final CategoryService categoryService;
 
-    @Autowired
     public CategoryController(ProductServiceImpl productService, CategoryServiceImpl categoryService) {
         this.productService = productService;
         this.categoryService = categoryService;

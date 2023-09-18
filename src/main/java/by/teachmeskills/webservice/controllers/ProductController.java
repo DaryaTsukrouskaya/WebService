@@ -66,11 +66,11 @@ public class ProductController {
     }
 
     @DeleteMapping("/delete/{id}")
-    public void deleteCategory(@PathVariable @Min(0) Integer id) {
+    public void deleteProduct(@PathVariable @Min(0) Integer id) {
         productService.delete(id);
     }
 
-    @GetMapping("/byCategory/{id}")
+    @GetMapping("/category/{id}")
     public ResponseEntity<List<ProductDto>> getProductsByCategory(@PathVariable @Min(0) int id) {
         return new ResponseEntity<>(productService.getProductsByCategory(id), HttpStatus.OK);
     }

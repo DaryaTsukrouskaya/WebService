@@ -1,8 +1,10 @@
 package by.teachmeskills.webservice.services;
 
 
+import by.teachmeskills.webservice.dto.LoginUserDto;
 import by.teachmeskills.webservice.dto.UserDto;
-import by.teachmeskills.webservice.exceptions.UserAlreadyExistsException;
+import by.teachmeskills.webservice.dto.UpdateUserDto;
+import by.teachmeskills.webservice.exceptions.IncorrectRepPasswordException;
 
 import java.util.List;
 
@@ -11,14 +13,11 @@ public interface UserService {
 
     void delete(int id);
 
-    void register(UserDto user, String repPassword) throws UserAlreadyExistsException;
+    void register(UserDto user) throws IncorrectRepPasswordException;
 
     UserDto findById(int id);
 
-    UserDto authenticate(String email, String password);
+    UserDto authenticate(LoginUserDto user);
 
-    void updatePassword(String password, String email);
-
-    void updateEmail(String previousEmail, String newEmail);
-    void update(UserDto user);
+    void update(int id, UpdateUserDto updateUserDto);
 }

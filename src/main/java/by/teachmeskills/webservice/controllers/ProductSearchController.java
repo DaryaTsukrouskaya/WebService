@@ -25,7 +25,6 @@ import java.util.List;
 public class ProductSearchController {
     private final ProductService productService;
 
-    @Autowired
     public ProductSearchController(ProductService productService) {
         this.productService = productService;
     }

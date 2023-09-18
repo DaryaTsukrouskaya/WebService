@@ -10,14 +10,13 @@ import java.util.List;
 import java.util.Optional;
 
 @Builder
-
 public class CartDto {
-    @NotNull(message = "список продуктов CartDto не должен быть null")
+    @NotNull(message = "список продуктов не должен быть пустым")
     private List<ProductDto> products;
 
-    @NotNull(message = "итоговая стоимость не должна быть null")
+    @NotNull(message = "итоговая стоимость не указана")
     private BigDecimal totalPrice;
-    
+
     public void addProduct(ProductDto product) {
         products.add(product);
         BigDecimal changedPrice = totalPrice.add(product.getPrice());

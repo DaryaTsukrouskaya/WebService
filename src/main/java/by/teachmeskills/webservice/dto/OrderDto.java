@@ -19,22 +19,20 @@ import java.util.List;
 @Data
 @SuperBuilder
 public class OrderDto {
-    @NotNull(message = "id поле в OrderConverter не должно быть null")
-    @Min(value = 1, message = "Id поле в UserDto меньше 1")
-    private Integer id;
+    private int id;
     @NotNull
     @Digits(integer = 6, fraction = 3, message = "не соответствует формату цены")
     private BigDecimal price;
     @Past(message = "дата еще не наступила")
     @NotNull(message = "дата заказа не должна быть пустой")
     private LocalDateTime orderDate;
-    @NotNull(message = "userId поле в OrderConverter не должно быть null")
-    @Min(value = 1, message = "userId поле в UserDto меньше 1")
+    @NotNull(message = "id пользователя не должно быть путсым")
+    @Min(value = 1, message = "id пользователя не должно быть меньше 1")
     private int userId;
     @NotNull(message = "дата заказа не должна быть пустой")
     private String address;
-    @NotNull(message = "список продуктов в orderDto не должен быть null")
-    @Size(min = 1, max = 10000, message = "Out of bounds orderDto product list")
+    @NotNull(message = "список продуктов не должен быть пустым")
+    @Size(min = 1, max = 10000, message = "количество продуктов в заказе должно быть от 1 до 10000")
     private List<ProductDto> products;
 
 }

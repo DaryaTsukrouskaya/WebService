@@ -16,18 +16,16 @@ import java.math.BigDecimal;
 @Data
 @SuperBuilder
 public class ProductDto {
-    @NotNull(message = "поле id продукта не должно быть null")
-    @Min(value = 1, message = "Поле айди продукта не должно быть короче 1")
     private int id;
-    @NotNull(message = "поле имя продукта не должно быть null")
-    @Size(min = 1, max = 60, message = "Пустое имя продукта или длиннее 50 символов")
+    @NotNull(message = "имя продукта не должно быть пустым")
+    @Size(min = 1, max = 60, message = "пустое имя продукта или длиннее 50 символов")
     private String name;
-    @NotNull(message = "поле описание картинки продукта не должно быть пустым")
+    @NotNull(message = "описание картинки продукта не должно быть пустым")
     private String description;
     @NotNull
-    @Min(value = 1, message = "Поле айди категории продукта не должно быть короче 1")
+    @Min(value = 1, message = " айди категории продукта не должно быть короче 1")
     private int categoryId;
-    @NotNull(message = "поле цена продукта не должно быть null")
+    @NotNull(message = "цена продукта не должна быть пустой")
     @Digits(integer = 6, fraction = 3, message = "не соответствует формату цены")
     private BigDecimal price;
 

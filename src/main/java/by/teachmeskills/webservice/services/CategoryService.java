@@ -8,7 +8,7 @@ import java.util.List;
 public interface CategoryService {
     List<CategoryDto> read();
 
-    public void create(CategoryDto category);
+    void create(CategoryDto category);
 
     void delete(int id);
 

@@ -37,7 +37,6 @@ public class CartController {
     private final UserService userService;
     private final OrderService orderService;
 
-    @Autowired
     public CartController(ProductServiceImpl productService, UserServiceImpl userService, OrderServiceImpl orderService) {
         this.productService = productService;
         this.userService = userService;
@@ -45,7 +44,7 @@ public class CartController {
     }
 
     @GetMapping("/getProducts")
-    public ResponseEntity<List<ProductDto>> getAlLProducts(@Valid @RequestBody CartDto cart, BindingResult bindingResult) throws ValidationException {
+    public ResponseEntity<List<ProductDto>> getAllProducts(@Valid @RequestBody CartDto cart, BindingResult bindingResult) throws ValidationException {
         if (!bindingResult.hasErrors()) {
             return new ResponseEntity<>(cart.getProducts(), HttpStatus.OK);
         } else {
@@ -64,7 +63,7 @@ public class CartController {
     }
 
     @DeleteMapping("/delete/{id}")
-    public void deleteProductFromCart(@Valid @RequestBody CartDto cart, @PathVariable @Min(0) int id, BindingResult bindingResult) throws ValidationException {
+    public void deleteProduct(@Valid @RequestBody CartDto cart, @PathVariable @Min(0) int id, BindingResult bindingResult) throws ValidationException {
         if (!bindingResult.hasErrors()) {
             cart.removeProduct(id);
         } else {
@@ -73,7 +72,7 @@ public class CartController {
     }
 
     @DeleteMapping("/clear")
-    public void clearCart(@Valid @RequestBody CartDto cart, BindingResult bindingResult) throws ValidationException {
+    public void clear(@Valid @RequestBody CartDto cart, BindingResult bindingResult) throws ValidationException {
         if (!bindingResult.hasErrors()) {
             cart.clear();
         } else {

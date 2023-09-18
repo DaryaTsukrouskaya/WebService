@@ -29,8 +29,7 @@ public class ProductRepositoryImpl implements ProductRepository {
     public void createOrUpdate(Product product) {
         try {
             entityManager.merge(product);
-        } catch (
-                PersistenceException ex) {
+        } catch (PersistenceException ex) {
             log.warn("Exception while creating or updating product" + ex.getMessage());
             throw new EntityNotFoundException("Error while creating or updating product");
         }
@@ -51,8 +50,7 @@ public class ProductRepositoryImpl implements ProductRepository {
     public List<Product> read() {
         try {
             return entityManager.createQuery("select p from Product p").getResultList();
-        } catch (
-                PersistenceException ex) {
+        } catch (PersistenceException ex) {
             log.warn("Exception while reading products" + ex.getMessage());
             throw new EntityNotFoundException("Error while reading products");
         }

@@ -12,10 +12,10 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @AllArgsConstructor
 public class KeyWordsDto {
-    @NotNull(message = "поле KeyWordsDto не должно быть null")
-    @Min(value = 3, message = "длина меньше 3")
+    @NotNull(message = "для поиска нужно ввести хотя бы одно слово не короче 3-х символов")
+    @Min(value = 3, message = "длина слова для поиска меньше 3-х символов")
     private String keyWords;
-    @NotNull(message = "поле номер текущей страницы не должно быть null")
+    @NotNull(message = "номер текущей страницы не должно быть пустым")
     private int currentPageNumber;
 
     public KeyWordsDto() {
