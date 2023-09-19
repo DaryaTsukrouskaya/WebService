@@ -9,6 +9,7 @@ import by.teachmeskills.webservice.dto.converters.UserConverter;
 import by.teachmeskills.webservice.entities.Order;
 import by.teachmeskills.webservice.exceptions.NoOrderAddressException;
 import by.teachmeskills.webservice.repositories.OrderRepository;
+import by.teachmeskills.webservice.repositories.UserRepository;
 import by.teachmeskills.webservice.repositories.impl.OrderRepositoryImpl;
 import by.teachmeskills.webservice.services.CategoryService;
 import by.teachmeskills.webservice.services.OrderService;
@@ -28,15 +29,17 @@ public class OrderServiceImpl implements OrderService {
     private final CategoryService categoryService;
     private final OrderConverter orderConverter;
     private final UserConverter userConverter;
+    private final UserRepository userRepository;
     private final ProductConverter productConverter;
 
     @Autowired
-    public OrderServiceImpl(OrderRepositoryImpl orderRepository, UserServiceImpl userService, CategoryServiceImpl categoryService, OrderConverter orderConverter, UserConverter userConverter, ProductConverter productConverter) {
+    public OrderServiceImpl(OrderRepositoryImpl orderRepository, UserServiceImpl userService, CategoryServiceImpl categoryService, OrderConverter orderConverter, UserConverter userConverter, UserRepository userRepository, ProductConverter productConverter) {
         this.orderRepository = orderRepository;
         this.userService = userService;
         this.categoryService = categoryService;
         this.orderConverter = orderConverter;
         this.userConverter = userConverter;
+        this.userRepository = userRepository;
         this.productConverter = productConverter;
     }
 
@@ -82,7 +85,7 @@ public class OrderServiceImpl implements OrderService {
             user.setOrders(orders);
         }
         user.getOrders().add(orderConverter.toDto(order));
-        userService.update(user);
+        userRepository.update(userConverter.fromDto(user));
         cart.clear();
         return orderConverter.toDto(order);
     }
