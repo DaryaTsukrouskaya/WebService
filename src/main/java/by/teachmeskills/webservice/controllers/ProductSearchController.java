@@ -52,7 +52,7 @@ public class ProductSearchController {
     @PostMapping("/searchResult")
     public ResponseEntity<List<ProductDto>> searchResult(@RequestBody @Valid KeyWordsDto keyWords, BindingResult bindingResult) throws ValidationException {
         if (!bindingResult.hasErrors()) {
-            return new ResponseEntity<>(productService.searchProductsPaged(keyWords.getCurrentPageNumber(), keyWords.getKeyWords()), HttpStatus.OK);
+            return new ResponseEntity<>(productService.searchProductsPaged(keyWords.getCurrentPageNumber(), keyWords), HttpStatus.OK);
         } else {
             throw new ValidationException(bindingResult.getFieldError().getDefaultMessage());
         }
@@ -74,18 +74,9 @@ public class ProductSearchController {
             )
     })
     @GetMapping("/{pageNumber}")
-    public ResponseEntity<List<ProductDto>> certainSearchPage(@PathVariable int pageNumber, @Valid KeyWordsDto keyWords, BindingResult bindingResult) throws ValidationException {
+    public ResponseEntity<List<ProductDto>> certainSearchPage(@PathVariable int pageNumber, @Valid @RequestBody KeyWordsDto keyWords, BindingResult bindingResult) throws ValidationException {
         if (!bindingResult.hasErrors()) {
-            keyWords.setCurrentPageNumber(pageNumber);
-            if (keyWords.getCurrentPageNumber() > 3) {
-                keyWords.setCurrentPageNumber(keyWords.getCurrentPageNumber() - 1);
-                pageNumber -= 1;
-            }
-            if (keyWords.getCurrentPageNumber() < 1) {
-                keyWords.setCurrentPageNumber(keyWords.getCurrentPageNumber() + 1);
-                pageNumber += 1;
-            }
-            return new ResponseEntity<>(productService.searchProductsPaged(pageNumber, keyWords.getKeyWords()), HttpStatus.OK);
+            return new ResponseEntity<>(productService.searchProductsPaged(pageNumber, keyWords), HttpStatus.OK);
         } else {
             throw new ValidationException(bindingResult.getFieldError().getDefaultMessage());
         }

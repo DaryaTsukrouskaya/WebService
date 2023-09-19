@@ -1,6 +1,7 @@
 package by.teachmeskills.webservice.services.impl;
 
 import by.teachmeskills.webservice.dto.CategoryDto;
+import by.teachmeskills.webservice.dto.KeyWordsDto;
 import by.teachmeskills.webservice.dto.ProductDto;
 import by.teachmeskills.webservice.dto.converters.ProductConverter;
 import by.teachmeskills.webservice.entities.Category;
@@ -63,14 +64,23 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<ProductDto> searchProductsPaged(int pageNumber, String keyWords) {
+    public List<ProductDto> searchProductsPaged(int pageNumber, KeyWordsDto keyWordsDto) {
+        keyWordsDto.setCurrentPageNumber(pageNumber);
+        if (keyWordsDto.getCurrentPageNumber() > 3) {
+            keyWordsDto.setCurrentPageNumber(keyWordsDto.getCurrentPageNumber() - 1);
+            pageNumber -= 1;
+        }
+        if (keyWordsDto.getCurrentPageNumber() < 1) {
+            keyWordsDto.setCurrentPageNumber(keyWordsDto.getCurrentPageNumber() + 1);
+            pageNumber += 1;
+        }
         Long totalRecords;
         List<Product> products = null;
         int pageMaxResult;
-        if (keyWords != null) {
-            totalRecords = productRepository.findProductsQuantityByKeywords(keyWords);
+        if (keyWordsDto.getKeyWords() != null) {
+            totalRecords = productRepository.findProductsQuantityByKeywords(keyWordsDto.getKeyWords());
             pageMaxResult = (int) (totalRecords / 3);
-            products = productRepository.findProductsByKeywords(keyWords, pageNumber, pageMaxResult);
+            products = productRepository.findProductsByKeywords(keyWordsDto.getKeyWords(), pageNumber, pageMaxResult);
         }
         return products.stream().map(productConverter::toDto).toList();
     }
