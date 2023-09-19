@@ -9,6 +9,7 @@ import by.teachmeskills.webservice.dto.converters.UserConverter;
 import by.teachmeskills.webservice.entities.Order;
 import by.teachmeskills.webservice.exceptions.NoOrderAddressException;
 import by.teachmeskills.webservice.repositories.OrderRepository;
+import by.teachmeskills.webservice.repositories.UserRepository;
 import by.teachmeskills.webservice.repositories.impl.OrderRepositoryImpl;
 import by.teachmeskills.webservice.services.CategoryService;
 import by.teachmeskills.webservice.services.OrderService;
@@ -26,15 +27,17 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final UserService userService;
     private final CategoryService categoryService;
+    private final UserRepository userRepository;
     private final OrderConverter orderConverter;
     private final UserConverter userConverter;
     private final ProductConverter productConverter;
 
     @Autowired
-    public OrderServiceImpl(OrderRepositoryImpl orderRepository, UserServiceImpl userService, CategoryServiceImpl categoryService, OrderConverter orderConverter, UserConverter userConverter, ProductConverter productConverter) {
+    public OrderServiceImpl(OrderRepositoryImpl orderRepository, UserServiceImpl userService, CategoryServiceImpl categoryService, UserRepository userRepository, OrderConverter orderConverter, UserConverter userConverter, ProductConverter productConverter) {
         this.orderRepository = orderRepository;
         this.userService = userService;
         this.categoryService = categoryService;
+        this.userRepository = userRepository;
         this.orderConverter = orderConverter;
         this.userConverter = userConverter;
         this.productConverter = productConverter;
@@ -82,7 +85,7 @@ public class OrderServiceImpl implements OrderService {
             user.setOrders(orders);
         }
         user.getOrders().add(orderConverter.toDto(order));
-        userService.update(user);
+        userRepository.update(userConverter.fromDto(user));
         cart.clear();
         return orderConverter.toDto(order);
     }

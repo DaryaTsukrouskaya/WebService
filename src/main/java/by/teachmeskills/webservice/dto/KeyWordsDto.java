@@ -15,7 +15,6 @@ public class KeyWordsDto {
     @NotNull(message = "для поиска нужно ввести хотя бы одно слово не короче 3-х символов")
     @Min(value = 3, message = "длина слова для поиска меньше 3-х символов")
     private String keyWords;
-    @NotNull(message = "номер текущей страницы не должно быть пустым")
     private int currentPageNumber;
 
     public KeyWordsDto() {

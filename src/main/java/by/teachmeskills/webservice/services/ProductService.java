@@ -1,5 +1,6 @@
 package by.teachmeskills.webservice.services;
 
+import by.teachmeskills.webservice.dto.KeyWordsDto;
 import by.teachmeskills.webservice.dto.ProductDto;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -18,5 +19,5 @@ public interface ProductService {
 
     List<ProductDto> getProductsByCategory(int id);
 
-    List<ProductDto> searchProductsPaged(int pageNumber, String keyWords);
+    List<ProductDto> searchProductsPaged(int pageNumber, KeyWordsDto keyWords);
 }
