@@ -32,7 +32,6 @@ public class OrderServiceImpl implements OrderService {
     private final UserConverter userConverter;
     private final ProductConverter productConverter;
 
-    @Autowired
     public OrderServiceImpl(OrderRepositoryImpl orderRepository, UserServiceImpl userService, CategoryServiceImpl categoryService, UserRepository userRepository, OrderConverter orderConverter, UserConverter userConverter, ProductConverter productConverter) {
         this.orderRepository = orderRepository;
         this.userService = userService;
