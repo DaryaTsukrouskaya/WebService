@@ -15,17 +15,17 @@ public interface ProductService {
 
     void create(ProductDto product);
 
+    List<ProductDto> saveProductsFromFile(MultipartFile file);
+
     void delete(int id);
 
     void update(ProductDto productDto);
+
+    void saveProductsToFile(HttpServletResponse servletResponse) throws IOException, CsvRequiredFieldEmptyException, CsvDataTypeMismatchException;
 
     ProductDto findById(int id);
 
     List<ProductDto> getProductsByCategory(int id);
 
     List<ProductDto> searchProductsPaged(int pageNumber, KeyWordsDto keyWords);
-
-    List<ProductDto> saveProductsFromFile(MultipartFile file);
-
-    void saveProductsToFile(HttpServletResponse servletResponse) throws IOException, CsvRequiredFieldEmptyException, CsvDataTypeMismatchException;
 }
