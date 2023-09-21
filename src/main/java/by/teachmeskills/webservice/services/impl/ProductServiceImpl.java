@@ -1,6 +1,5 @@
 package by.teachmeskills.webservice.services.impl;
 
-import by.teachmeskills.webservice.dto.CategoryDto;
 import by.teachmeskills.webservice.dto.KeyWordsDto;
 import by.teachmeskills.webservice.dto.ProductDto;
 import by.teachmeskills.webservice.dto.converters.ProductConverter;
