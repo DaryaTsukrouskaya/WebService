@@ -32,7 +32,7 @@ public class OrderServiceImpl implements OrderService {
     private final UserRepository userRepository;
     private final ProductConverter productConverter;
 
-    public OrderServiceImpl(OrderRepositoryImpl orderRepository, UserServiceImpl userService, CategoryServiceImpl categoryService, OrderConverter orderConverter, UserConverter userConverter, UserRepository userRepository, ProductConverter productConverter) {
+    public OrderServiceImpl(OrderRepositoryImpl orderRepository, UserServiceImpl userService, CategoryServiceImpl categoryService, UserRepository userRepository, OrderConverter orderConverter, UserConverter userConverter, ProductConverter productConverter) {
         this.orderRepository = orderRepository;
         this.userService = userService;
         this.categoryService = categoryService;
