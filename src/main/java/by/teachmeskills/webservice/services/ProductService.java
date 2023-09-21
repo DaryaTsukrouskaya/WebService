@@ -25,7 +25,7 @@ public interface ProductService {
 
     List<ProductDto> searchProductsPaged(int pageNumber, KeyWordsDto keyWords);
 
-    List<ProductDto> saveProductsFromFile(MultipartFile file) throws IOException;
+    List<ProductDto> saveProductsFromFile(MultipartFile file);
 
     void saveProductsToFile(HttpServletResponse servletResponse) throws IOException, CsvRequiredFieldEmptyException, CsvDataTypeMismatchException;
 }
