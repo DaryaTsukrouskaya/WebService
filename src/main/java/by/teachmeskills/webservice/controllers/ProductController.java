@@ -6,6 +6,8 @@ import by.teachmeskills.webservice.dto.ProductDto;
 import by.teachmeskills.webservice.exceptions.ValidationException;
 import by.teachmeskills.webservice.services.ProductService;
 import by.teachmeskills.webservice.services.impl.ProductServiceImpl;
+import com.opencsv.exceptions.CsvDataTypeMismatchException;
+import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -13,6 +15,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,8 +29,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -172,5 +178,43 @@ public class ProductController {
         return new ResponseEntity<>(productService.getProductsByCategory(id), HttpStatus.OK);
     }
 
+    @Operation(
+            summary = "Save products from file",
+            description = "Save products from .csv file and persist to database",
+            tags = {"product"})
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Categories was loaded",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = CategoryDto.class)))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Categories was not loaded - server error"
+            )
+    })
+    @PostMapping("/loadFromFile")
+    public ResponseEntity<ProductDto> loadFromFile(@RequestParam("file") MultipartFile file) throws IOException {
+        return new ResponseEntity(productService.saveProductsFromFile(file), HttpStatus.OK);
+    }
+
+    @Operation(
+            summary = "Save products to file",
+            description = "Save products to .csv file ",
+            tags = {"product"})
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Products was saved"
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Products was not saved - server error"
+            )
+    })
+    @GetMapping("/loadCsvFile")
+    public void loadToFile(HttpServletResponse servletResponse) throws CsvRequiredFieldEmptyException, CsvDataTypeMismatchException, IOException {
+        productService.saveProductsToFile(servletResponse);
+    }
 
 }
