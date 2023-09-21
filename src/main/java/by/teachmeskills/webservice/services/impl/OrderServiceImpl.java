@@ -36,9 +36,9 @@ public class OrderServiceImpl implements OrderService {
         this.orderRepository = orderRepository;
         this.userService = userService;
         this.categoryService = categoryService;
-        this.userRepository = userRepository;
         this.orderConverter = orderConverter;
         this.userConverter = userConverter;
+        this.userRepository = userRepository;
         this.productConverter = productConverter;
     }
 
