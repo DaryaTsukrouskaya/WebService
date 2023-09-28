@@ -201,6 +201,7 @@ public class CategoryController {
     public ResponseEntity<CategoryDto> loadFromFile(@RequestParam("file") MultipartFile file) {
         return new ResponseEntity(categoryService.saveCategoriesFromFile(file), HttpStatus.OK);
     }
+
     @Operation(
             summary = "Save categories to file",
             description = "Save categories to .csv file ",
@@ -215,7 +216,7 @@ public class CategoryController {
                     description = "Categories was not loaded - server error"
             )
     })
-    @GetMapping("/loadCsvFile")
+    @PostMapping("/loadCsvFile")
     public void loadToFile(HttpServletResponse servletResponse) throws CsvRequiredFieldEmptyException, CsvDataTypeMismatchException, IOException {
         categoryService.saveCategoriesToFile(servletResponse);
     }

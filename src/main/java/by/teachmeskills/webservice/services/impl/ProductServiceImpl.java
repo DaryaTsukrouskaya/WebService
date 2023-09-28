@@ -120,7 +120,7 @@ public class ProductServiceImpl implements ProductService {
         if (Optional.ofNullable(file).isPresent()) {
             try (Reader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
                 CsvToBean<ProductDto> csvToBean = new CsvToBeanBuilder<ProductDto>(reader).withType(ProductDto.class).
-                        withIgnoreLeadingWhiteSpace(true).withSeparator(',').build();
+                        withIgnoreLeadingWhiteSpace(true).withSeparator(';').build();
                 return csvToBean.parse();
             } catch (IOException e) {
                 log.error("Exception occurred during csv parsing:" + e.getMessage());

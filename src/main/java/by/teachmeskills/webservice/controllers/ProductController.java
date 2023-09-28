@@ -212,7 +212,7 @@ public class ProductController {
                     description = "Products was not saved - server error"
             )
     })
-    @GetMapping("/loadCsvFile")
+    @PostMapping("/loadCsvFile")
     public void loadToFile(HttpServletResponse servletResponse) throws CsvRequiredFieldEmptyException, CsvDataTypeMismatchException, IOException {
         productService.saveProductsToFile(servletResponse);
     }

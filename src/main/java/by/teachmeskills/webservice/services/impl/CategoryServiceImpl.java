@@ -89,7 +89,7 @@ public class CategoryServiceImpl implements CategoryService {
         if (Optional.ofNullable(file).isPresent()) {
             try (Reader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
                 CsvToBean<CategoryDto> csvToBean = new CsvToBeanBuilder<CategoryDto>(reader).withType(CategoryDto.class).
-                        withIgnoreLeadingWhiteSpace(true).withSeparator(',').build();
+                        withIgnoreLeadingWhiteSpace(true).withSeparator(';').build();
                 return csvToBean.parse();
             } catch (IOException e) {
                 log.error("Exception occurred during csv parsing:" + e.getMessage());
