@@ -21,7 +21,7 @@ public interface ProductService {
 
     void update(ProductDto productDto);
 
-    void saveProductsToFile(HttpServletResponse servletResponse) throws IOException, CsvRequiredFieldEmptyException, CsvDataTypeMismatchException;
+    void saveProductsToFile(HttpServletResponse servletResponse, int id) throws IOException, CsvRequiredFieldEmptyException, CsvDataTypeMismatchException;
 
     ProductDto findById(int id);
 

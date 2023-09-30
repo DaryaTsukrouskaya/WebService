@@ -4,6 +4,7 @@ import by.teachmeskills.webservice.dto.KeyWordsDto;
 import by.teachmeskills.webservice.dto.ProductDto;
 import by.teachmeskills.webservice.dto.converters.ProductConverter;
 import by.teachmeskills.webservice.entities.Product;
+import by.teachmeskills.webservice.repositories.CategoryRepository;
 import by.teachmeskills.webservice.repositories.ProductRepository;
 import by.teachmeskills.webservice.repositories.impl.ProductRepositoryImpl;
 import by.teachmeskills.webservice.services.ProductService;
@@ -35,11 +36,13 @@ import java.util.Optional;
 public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final ProductConverter productConverter;
+    private final CategoryRepository categoryRepository;
 
     @Autowired
-    public ProductServiceImpl(ProductRepositoryImpl productRepository, ProductConverter productConverter) {
+    public ProductServiceImpl(ProductRepositoryImpl productRepository, ProductConverter productConverter, CategoryRepository categoryRepository) {
         this.productRepository = productRepository;
         this.productConverter = productConverter;
+        this.categoryRepository = categoryRepository;
     }
 
 
@@ -54,6 +57,8 @@ public class ProductServiceImpl implements ProductService {
         product.setName(productDto.getName());
         product.setPrice(productDto.getPrice());
         product.setDescription(product.getDescription());
+        product.setImagePath(product.getImagePath());
+        product.setCategory(categoryRepository.findById(productDto.getCategoryId()));
         productRepository.create(product);
 
     }
@@ -80,6 +85,8 @@ public class ProductServiceImpl implements ProductService {
         product.setName(productDto.getName());
         product.setDescription(productDto.getDescription());
         product.setPrice(productDto.getPrice());
+        product.setImagePath(productDto.getImagePath());
+        product.setCategory(categoryRepository.findById(productDto.getCategoryId()));
         productRepository.update(product);
     }
 
@@ -132,8 +139,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public void saveProductsToFile(HttpServletResponse servletResponse) throws IOException, CsvRequiredFieldEmptyException, CsvDataTypeMismatchException {
-        List<ProductDto> products = productRepository.read().stream().map(productConverter::toDto).toList();
+    public void saveProductsToFile(HttpServletResponse servletResponse, int id) throws IOException, CsvRequiredFieldEmptyException, CsvDataTypeMismatchException {
+        List<ProductDto> products = productRepository.getProductsByCategory(id).stream().map(productConverter::toDto).toList();
         try (Writer writer = new OutputStreamWriter(servletResponse.getOutputStream())) {
             StatefulBeanToCsv<ProductDto> statefulBeanToCsv = new StatefulBeanToCsvBuilder<ProductDto>(writer).withSeparator(';').build();
             servletResponse.setContentType("text/csv");
