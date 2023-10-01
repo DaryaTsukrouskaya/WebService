@@ -3,12 +3,20 @@ package by.teachmeskills.webservice.controllers;
 
 import by.teachmeskills.webservice.dto.CategoryDto;
 import by.teachmeskills.webservice.dto.LoginUserDto;
+import by.teachmeskills.webservice.dto.ProductDto;
 import by.teachmeskills.webservice.dto.UserDto;
 import by.teachmeskills.webservice.dto.UpdateUserDto;
 import by.teachmeskills.webservice.exceptions.IncorrectRepPasswordException;
 import by.teachmeskills.webservice.exceptions.ValidationException;
 import by.teachmeskills.webservice.services.CategoryService;
 import by.teachmeskills.webservice.services.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import org.springframework.http.HttpStatus;
@@ -28,6 +36,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/user")
+@Tag(name = "user", description = "User endpoints")
 public class UserController {
     private final CategoryService categoryService;
     private final UserService userService;
@@ -37,7 +46,21 @@ public class UserController {
         this.userService = userService;
     }
 
-
+    @Operation(
+            summary = "Find certain user",
+            description = "Find certain user of eshop by id",
+            tags = {"user"})
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "User was found by id",
+                    content = @Content(schema = @Schema(contentSchema = UserDto.class))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "User not found - server error"
+            )
+    })
     @GetMapping("/get/{id}")
     public ResponseEntity<UserDto> get(@PathVariable @Min(0) int id) {
         return Optional.ofNullable(userService.findById(id))
@@ -45,11 +68,40 @@ public class UserController {
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
+    @Operation(
+            summary = "Find all users",
+            description = "Find all existed users of eshop",
+            tags = {"user"})
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "All users were found",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = UserDto.class)))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Users was not found - server error"
+            )
+    })
     @GetMapping("/all")
     public ResponseEntity<List<UserDto>> getAll() {
         return new ResponseEntity<>(userService.read(), HttpStatus.OK);
     }
 
+    @Operation(
+            summary = "Create user",
+            description = "Create new user",
+            tags = {"user"})
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "User was created"
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "User was not created - server error"
+            )
+    })
     @PostMapping("/create")
     public void create(@Valid @RequestBody UserDto userDto, BindingResult bindingResult) throws ValidationException, IncorrectRepPasswordException {
         if (!bindingResult.hasErrors()) {
@@ -59,6 +111,20 @@ public class UserController {
         }
     }
 
+    @Operation(
+            summary = "Update user",
+            description = "Update certain user by id",
+            tags = {"user"})
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Category was updated"
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Category was not updated - server error"
+            )
+    })
     @PutMapping("/update/{id}")
     public void update(@RequestBody @Valid UpdateUserDto updateUserDto, @PathVariable int id, BindingResult bindingResult) throws ValidationException {
         if (!bindingResult.hasErrors()) {
@@ -68,11 +134,40 @@ public class UserController {
         }
     }
 
+    @Operation(
+            summary = "Delete user",
+            description = "Delete existed user from eshop",
+            tags = {"user"})
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "User was deleted"
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "User was not deleted - server error"
+            )
+    })
     @DeleteMapping("/delete/{id}")
     public void delete(@PathVariable @Min(0) Integer id) {
         userService.delete(id);
     }
 
+    @Operation(summary = "Authenticate user",
+            description = "Authenticate user in eshop",
+            tags = {"user"})
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "User was authenticated",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = CategoryDto.class)))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "User was not authenticated - server error"
+            )
+    }
+    )
     @PostMapping("/authenticate")
     ResponseEntity<List<CategoryDto>> authenticate(@RequestBody @Valid LoginUserDto userDto, BindingResult bindingResult) throws ValidationException {
         if (!bindingResult.hasErrors()) {

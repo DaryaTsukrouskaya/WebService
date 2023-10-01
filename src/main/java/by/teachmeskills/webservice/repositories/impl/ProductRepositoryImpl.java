@@ -1,5 +1,6 @@
 package by.teachmeskills.webservice.repositories.impl;
 
+import by.teachmeskills.webservice.entities.Category;
 import by.teachmeskills.webservice.entities.Product;
 import by.teachmeskills.webservice.repositories.ProductRepository;
 import jakarta.persistence.EntityManager;
@@ -26,12 +27,24 @@ public class ProductRepositoryImpl implements ProductRepository {
     }
 
     @Override
-    public void createOrUpdate(Product product) {
+    public Product create(Product product) {
+        try {
+            entityManager.persist(product);
+            return product;
+        } catch (PersistenceException ex) {
+            log.warn("Exception while creating or updating category" + ex.getMessage());
+            throw new EntityNotFoundException("Error while creating or updating category");
+        }
+    }
+
+    @Override
+    public Product update(Product product) {
         try {
             entityManager.merge(product);
+            return product;
         } catch (PersistenceException ex) {
-            log.warn("Exception while creating or updating product" + ex.getMessage());
-            throw new EntityNotFoundException("Error while creating or updating product");
+            log.warn("Exception while creating or updating category" + ex.getMessage());
+            throw new EntityNotFoundException("Error while creating or updating category");
         }
     }
 

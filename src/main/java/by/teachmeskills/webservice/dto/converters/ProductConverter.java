@@ -21,11 +21,11 @@ public class ProductConverter {
 
     public ProductDto toDto(Product product) {
         return Optional.ofNullable(product).map(p -> ProductDto.builder().id(p.getId()).name(p.getName()).
-                description(p.getDescription()).categoryId(p.getCategory().getId()).price(p.getPrice()).build()).orElse(null);
+                description(p.getDescription()).imagePath(p.getImagePath()).categoryId(p.getCategory().getId()).price(p.getPrice()).build()).orElse(null);
     }
 
     public Product fromDto(ProductDto productDto) {
         return Optional.ofNullable(productDto).map(p -> Product.builder().id(p.getId()).name(p.getName()).
-                description(p.getDescription()).imagePath(productRepository.findById(productDto.getId()).getImagePath()).category(categoryRepository.findById(p.getCategoryId())).price(p.getPrice()).build()).orElse(null);
+                description(p.getDescription()).imagePath(p.getImagePath()).category(categoryRepository.findById(p.getCategoryId())).price(p.getPrice()).build()).orElse(null);
     }
 }

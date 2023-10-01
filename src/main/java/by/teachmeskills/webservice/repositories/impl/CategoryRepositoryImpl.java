@@ -29,14 +29,26 @@ public class CategoryRepositoryImpl implements CategoryRepository {
     }
 
     @Override
-    public void createOrUpdate(Category category) {
+    public Category create(Category category) {
         try {
-            entityManager.merge(category);
+            entityManager.persist(category);
+            return category;
         } catch (PersistenceException ex) {
             log.warn("Exception while creating or updating category" + ex.getMessage());
             throw new EntityNotFoundException("Error while creating or updating category");
         }
     }
+    @Override
+    public Category update(Category category) {
+        try {
+            entityManager.merge(category);
+            return category;
+        } catch (PersistenceException ex) {
+            log.warn("Exception while creating or updating category" + ex.getMessage());
+            throw new EntityNotFoundException("Error while creating or updating category");
+        }
+    }
+
 
     @Override
     public void delete(int id) {

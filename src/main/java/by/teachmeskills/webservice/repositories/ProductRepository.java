@@ -7,7 +7,9 @@ import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 
 public interface ProductRepository {
-    void createOrUpdate(Product product) throws EntityNotFoundException;
+    Product create(Product product);
+
+    Product update(Product product);
 
     void delete(int id);
 
