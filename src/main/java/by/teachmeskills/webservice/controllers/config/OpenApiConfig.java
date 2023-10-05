@@ -16,32 +16,32 @@ import java.util.List;
 public class OpenApiConfig {
     @Bean
     public GroupedOpenApi publicCartApi() {
-        return GroupedOpenApi.builder().group("cart").pathsToMatch("//cart/").build();
+        return GroupedOpenApi.builder().group("cart").pathsToMatch("/**/cart/**").build();
     }
 
     @Bean
     public GroupedOpenApi publicCategoryApi() {
-        return GroupedOpenApi.builder().group("categories").pathsToMatch("//category/").build();
+        return GroupedOpenApi.builder().group("categories").pathsToMatch("/**/category/**").build();
     }
 
     @Bean
     public GroupedOpenApi publicProductApi() {
-        return GroupedOpenApi.builder().group("products").pathsToMatch("//product/").build();
+        return GroupedOpenApi.builder().group("products").pathsToMatch("/**/product/**").build();
     }
 
     @Bean
     public GroupedOpenApi publicSearchApi() {
-        return GroupedOpenApi.builder().group("search").pathsToMatch("//search/").build();
+        return GroupedOpenApi.builder().group("search").pathsToMatch("/**/search/**").build();
     }
 
     @Bean
     public GroupedOpenApi publicUserApi() {
-        return GroupedOpenApi.builder().group("users").pathsToMatch("//user/").build();
+        return GroupedOpenApi.builder().group("users").pathsToMatch("/**/user/**").build();
     }
 
     @Bean
     public GroupedOpenApi publicUserProfileApi() {
-        return GroupedOpenApi.builder().group("profile").pathsToMatch("//profile/").build();
+        return GroupedOpenApi.builder().group("profile").pathsToMatch("/**/profile/**").build();
     }
 
     @Bean
