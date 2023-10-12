@@ -10,11 +10,9 @@ import by.teachmeskills.webservice.entities.Order;
 import by.teachmeskills.webservice.exceptions.NoOrderAddressException;
 import by.teachmeskills.webservice.repositories.OrderRepository;
 import by.teachmeskills.webservice.repositories.UserRepository;
-import by.teachmeskills.webservice.repositories.impl.OrderRepositoryImpl;
 import by.teachmeskills.webservice.services.CategoryService;
 import by.teachmeskills.webservice.services.OrderService;
 import by.teachmeskills.webservice.services.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -32,7 +30,7 @@ public class OrderServiceImpl implements OrderService {
     private final UserConverter userConverter;
     private final ProductConverter productConverter;
 
-    public OrderServiceImpl(OrderRepositoryImpl orderRepository, UserServiceImpl userService, CategoryServiceImpl categoryService, UserRepository userRepository, OrderConverter orderConverter, UserConverter userConverter, ProductConverter productConverter) {
+    public OrderServiceImpl(OrderRepository orderRepository, UserServiceImpl userService, CategoryServiceImpl categoryService, UserRepository userRepository, OrderConverter orderConverter, UserConverter userConverter, ProductConverter productConverter) {
         this.orderRepository = orderRepository;
         this.userService = userService;
         this.categoryService = categoryService;
@@ -44,17 +42,17 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public List<OrderDto> read() {
-        return orderRepository.read().stream().map(orderConverter::toDto).toList();
+        return orderRepository.findAll().stream().map(orderConverter::toDto).toList();
     }
 
     @Override
     public void create(OrderDto order) {
-        orderRepository.createOrUpdate(orderConverter.fromDto(order));
+        orderRepository.save(orderConverter.fromDto(order));
     }
 
     @Override
     public void delete(int id) {
-        orderRepository.delete(id);
+        orderRepository.deleteById(id);
     }
 
     @Override
@@ -69,7 +67,12 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public void update(OrderDto order) {
-        orderRepository.createOrUpdate(orderConverter.fromDto(order));
+        Order updatedOrder = orderRepository.findById(order.getId());
+        updatedOrder.setAddress(order.getAddress());
+        updatedOrder.setUser(userRepository.findById(order.getUserId()));
+        updatedOrder.setPrice(order.getPrice());
+        updatedOrder.setProducts(order.getProducts().stream().map(productConverter::fromDto).toList());
+        orderRepository.save(orderConverter.fromDto(order));
     }
 
     @Override
@@ -78,13 +81,13 @@ public class OrderServiceImpl implements OrderService {
             throw new NoOrderAddressException("Введите адрес для заказа!");
         }
         Order order = new Order(cart.getTotalPrice(), LocalDateTime.now(), userConverter.fromDto(user), address, cart.getProducts().stream().map(productConverter::fromDto).toList());
-        orderRepository.createOrUpdate(order);
+        orderRepository.save(order);
         if (user.getOrders() == null || user.getOrders().isEmpty()) {
             List<OrderDto> orders = new ArrayList<>();
             user.setOrders(orders);
         }
         user.getOrders().add(orderConverter.toDto(order));
-        userRepository.update(userConverter.fromDto(user));
+        userRepository.save(userConverter.fromDto(user));
         cart.clear();
         return orderConverter.toDto(order);
     }

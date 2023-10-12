@@ -2,6 +2,7 @@ package by.teachmeskills.webservice.services;
 
 
 import by.teachmeskills.webservice.dto.LoginUserDto;
+import by.teachmeskills.webservice.dto.OrderDto;
 import by.teachmeskills.webservice.dto.UserDto;
 import by.teachmeskills.webservice.dto.UpdateUserDto;
 import by.teachmeskills.webservice.exceptions.IncorrectRepPasswordException;
@@ -20,4 +21,6 @@ public interface UserService {
     UserDto authenticate(LoginUserDto user);
 
     void update(int id, UpdateUserDto updateUserDto);
+
+    List<OrderDto> getUserOrdersPaged(int id, int pageNumber, int pageSize);
 }

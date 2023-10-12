@@ -2,25 +2,28 @@ package by.teachmeskills.webservice.repositories;
 
 
 import by.teachmeskills.webservice.entities.Product;
-import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-public interface ProductRepository {
-    Product create(Product product);
+@Repository
+@Transactional
+public interface ProductRepository extends JpaRepository<Product, Integer>, JpaSpecificationExecutor<Product> {
 
-    Product update(Product product);
+    List<Product> findByCategoryId(int id);
 
-    void delete(int id);
-
-    List<Product> read();
+    Page<Product> findByCategoryId(int id, Pageable page);
 
     Product findById(int id);
 
-    List<Product> getProductsByCategory(int id);
-
-    List<Product> findProductsByKeywords(String words, int pageNumber, int maxResult);
-
-    Long findProductsQuantityByKeywords(String words);
+    @Query("select p from Product p where p.name like %:keywords% or p.description like %:keywords%")
+    Page<Product> findByKeyWords(@Param("keywords") String keywords, Pageable pageable);
 
 }

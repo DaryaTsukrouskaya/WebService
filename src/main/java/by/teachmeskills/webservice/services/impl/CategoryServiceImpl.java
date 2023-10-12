@@ -7,7 +7,6 @@ import by.teachmeskills.webservice.dto.converters.ProductConverter;
 import by.teachmeskills.webservice.entities.Category;
 import by.teachmeskills.webservice.repositories.CategoryRepository;
 import by.teachmeskills.webservice.services.CategoryService;
-import com.opencsv.CSVWriter;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
 import com.opencsv.bean.StatefulBeanToCsv;
@@ -46,7 +45,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public List<CategoryDto> read() {
-        return categoryRepository.read().stream().map(categoryConverter::toDto).toList();
+        return categoryRepository.findAll().stream().map(categoryConverter::toDto).toList();
     }
 
     @Override
@@ -54,19 +53,19 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = new Category();
         category.setName(category.getName());
         category.setProducts(categoryDto.getProducts().stream().map(productConverter::fromDto).toList());
-        categoryRepository.create(category);
+        categoryRepository.save(category);
     }
 
     @Override
     public void update(CategoryDto categoryDto) {
         Category category = categoryRepository.findById(categoryConverter.fromDto(categoryDto).getId());
         category.setName(categoryDto.getName());
-        categoryRepository.update(category);
+        categoryRepository.save(category);
     }
 
     @Override
     public void delete(int id) {
-        categoryRepository.delete(id);
+        categoryRepository.deleteById(id);
     }
 
     @Override
@@ -79,7 +78,7 @@ public class CategoryServiceImpl implements CategoryService {
         List<CategoryDto> csvCategories = parseCsv(file);
         List<Category> categories = Optional.ofNullable(csvCategories).map(list -> list.stream().map(categoryConverter::fromDto).toList()).orElse(null);
         if (Optional.ofNullable(categories).isPresent()) {
-            categories.forEach(categoryRepository::create);
+            categories.forEach(categoryRepository::save);
             return categories.stream().map(categoryConverter::toDto).toList();
         }
         return Collections.emptyList();
@@ -102,7 +101,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public void saveCategoriesToFile(HttpServletResponse servletResponse) throws IOException, CsvRequiredFieldEmptyException, CsvDataTypeMismatchException {
-        List<CategoryDto> categories = categoryRepository.read().stream().map(categoryConverter::toDto).toList();
+        List<CategoryDto> categories = categoryRepository.findAll().stream().map(categoryConverter::toDto).toList();
         try (Writer writer = new OutputStreamWriter(servletResponse.getOutputStream())) {
             StatefulBeanToCsv<CategoryDto> statefulBeanToCsv = new StatefulBeanToCsvBuilder<CategoryDto>(writer).withSeparator(';').build();
             servletResponse.setContentType("text/csv");

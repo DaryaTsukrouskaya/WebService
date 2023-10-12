@@ -27,6 +27,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -35,6 +36,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.io.IOException;
 import java.util.List;
@@ -189,12 +191,12 @@ public class CategoryController {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Categories was loaded",
+                    description = "Categories were loaded",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = CategoryDto.class)))
             ),
             @ApiResponse(
                     responseCode = "400",
-                    description = "Categories was not loaded - server error"
+                    description = "Categories were not loaded - server error"
             )
     })
     @PostMapping("/loadFromFile")
@@ -209,16 +211,36 @@ public class CategoryController {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Categories was saved"
+                    description = "Categories were saved"
             ),
             @ApiResponse(
                     responseCode = "400",
-                    description = "Categories was not loaded - server error"
+                    description = "Categories were not loaded - server error"
             )
     })
     @PostMapping("/loadCsvFile")
     public void loadToFile(HttpServletResponse servletResponse) throws CsvRequiredFieldEmptyException, CsvDataTypeMismatchException, IOException {
         categoryService.saveCategoriesToFile(servletResponse);
+    }
+
+    @Operation(
+            summary = "Get paged products",
+            description = "Get paged products of certain category",
+            tags = {"category"})
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Products were found"
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Products were not found",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = ProductDto.class)))
+            )
+    })
+    @GetMapping("/productsPaged/{id}")
+    public ResponseEntity<List<ProductDto>> getCategoryProductsPaged(@PathVariable int id, @RequestParam(name = "page", defaultValue = "0") int pageNumber, @RequestParam(name = "size", defaultValue = "2") int pageSize) {
+        return new ResponseEntity<>(productService.getProductsByCategoryPaged(id, pageNumber, pageSize), HttpStatus.OK);
     }
 }
 
