@@ -46,6 +46,8 @@ public class UserDto {
             message = "пароль не должен содержать пробелы")
     private String repPassword;
     private List<OrderDto> orders;
+    @NotNull(message = "Empty user roles")
+    private List<RoleDto> roles;
 }
 
 

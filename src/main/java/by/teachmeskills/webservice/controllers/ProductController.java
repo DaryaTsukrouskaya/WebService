@@ -21,6 +21,7 @@ import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -107,6 +108,7 @@ public class ProductController {
             )
     })
     @PostMapping("/create")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public void createProduct(@Valid @RequestBody ProductDto productDto, BindingResult bindingResult) throws ValidationException {
         if (!bindingResult.hasErrors()) {
             productService.create(productDto);
@@ -131,6 +133,7 @@ public class ProductController {
             )
     })
     @PutMapping("/update")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public void updateProduct(@RequestBody @Valid ProductDto productDto, BindingResult bindingResult) throws ValidationException {
         if (!bindingResult.hasErrors()) {
             productService.update(productDto);
@@ -154,6 +157,7 @@ public class ProductController {
             )
     })
     @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public void deleteProduct(@PathVariable @Min(0) Integer id) {
         productService.delete(id);
     }
@@ -194,6 +198,7 @@ public class ProductController {
             )
     })
     @PostMapping("/loadFromFile")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<ProductDto> loadFromFile(@RequestParam("file") MultipartFile file) throws IOException {
         return new ResponseEntity(productService.saveProductsFromFile(file), HttpStatus.OK);
     }
@@ -213,6 +218,7 @@ public class ProductController {
             )
     })
     @PostMapping("/loadCsvFile/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public void loadToFile(HttpServletResponse servletResponse, @PathVariable int id) throws CsvRequiredFieldEmptyException, CsvDataTypeMismatchException, IOException {
         productService.saveProductsToFile(servletResponse, id);
     }

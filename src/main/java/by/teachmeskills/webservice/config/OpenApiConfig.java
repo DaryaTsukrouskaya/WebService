@@ -1,9 +1,11 @@
-package by.teachmeskills.webservice.controllers.config;
+package by.teachmeskills.webservice.config;
 
+import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
 import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.beans.factory.annotation.Value;
@@ -45,6 +47,15 @@ public class OpenApiConfig {
     }
 
     @Bean
+    public GroupedOpenApi publicAuthApi() {
+        return GroupedOpenApi.builder().group("auth").pathsToMatch("/**/auth/**").build();
+    }
+
+    private SecurityScheme createSecurityScheme() {
+        return new SecurityScheme().name("Eshop").type(SecurityScheme.Type.HTTP).scheme("bearer").bearerFormat("JWT");
+    }
+
+    @Bean
     public OpenAPI customOpenApi(@Value("${application.description}") String appDescription,
                                  @Value("${application.version}") String appVersion) {
         return new OpenAPI()
@@ -57,7 +68,7 @@ public class OpenApiConfig {
                         .contact(new Contact().name("TeachMeSkills")
                                 .email("tms@gmail.com")))
                 .servers(List.of(new Server().url("http://localhost:8080")
-                        .description("Dev service")));
+                        .description("Dev service"))).components(new Components().addSecuritySchemes("Bearer Authentication", createSecurityScheme()));
     }
 }
 

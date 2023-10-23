@@ -20,14 +20,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
-import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -132,6 +131,7 @@ public class CategoryController {
                     description = "Category not created - server error"
             )
     })
+    @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/create")
     public void createCategory(@Valid @RequestBody CategoryDto categoryDto, BindingResult bindingResult) throws ValidationException {
         if (!bindingResult.hasErrors()) {
@@ -157,6 +157,7 @@ public class CategoryController {
             )
     })
     @PutMapping("/update")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public void updateCategory(@RequestBody @Valid CategoryDto categoryDto, BindingResult bindingResult) throws ValidationException {
         if (!bindingResult.hasErrors()) {
             categoryService.update(categoryDto);
@@ -180,6 +181,7 @@ public class CategoryController {
             )
     })
     @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public void deleteCategory(@PathVariable @Min(0) Integer id) {
         categoryService.delete(id);
     }
@@ -199,6 +201,7 @@ public class CategoryController {
                     description = "Categories were not loaded - server error"
             )
     })
+    @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/loadFromFile")
     public ResponseEntity<CategoryDto> loadFromFile(@RequestParam("file") MultipartFile file) {
         return new ResponseEntity(categoryService.saveCategoriesFromFile(file), HttpStatus.OK);
@@ -218,6 +221,7 @@ public class CategoryController {
                     description = "Categories were not loaded - server error"
             )
     })
+    @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/loadCsvFile")
     public void loadToFile(HttpServletResponse servletResponse) throws CsvRequiredFieldEmptyException, CsvDataTypeMismatchException, IOException {
         categoryService.saveCategoriesToFile(servletResponse);

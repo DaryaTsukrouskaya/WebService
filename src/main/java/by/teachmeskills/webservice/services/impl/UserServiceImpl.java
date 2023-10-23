@@ -6,6 +6,7 @@ import by.teachmeskills.webservice.dto.UserDto;
 import by.teachmeskills.webservice.dto.converters.OrderConverter;
 import by.teachmeskills.webservice.dto.UpdateUserDto;
 import by.teachmeskills.webservice.dto.converters.UserConverter;
+import by.teachmeskills.webservice.entities.Role;
 import by.teachmeskills.webservice.entities.User;
 import by.teachmeskills.webservice.exceptions.IncorrectRepPasswordException;
 import by.teachmeskills.webservice.repositories.OrderRepository;
@@ -17,11 +18,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -31,16 +34,18 @@ public class UserServiceImpl implements UserService {
     private final OrderConverter orderConverter;
     private final UserConverter userConverter;
     private final OrderRepository orderRepository;
+    private final PasswordEncoder passwordEncoder;
 
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, CategoryServiceImpl categoryRepository, ProductServiceImpl productService, OrderConverter orderConverter, UserConverter userConverter, OrderRepository orderRepository) {
+    public UserServiceImpl(UserRepository userRepository, CategoryServiceImpl categoryRepository, ProductServiceImpl productService, OrderConverter orderConverter, UserConverter userConverter, OrderRepository orderRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.categoryService = categoryRepository;
         this.productService = productService;
         this.orderConverter = orderConverter;
         this.userConverter = userConverter;
         this.orderRepository = orderRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -55,8 +60,10 @@ public class UserServiceImpl implements UserService {
             user.setName(userDto.getName());
             user.setSurname(userDto.getSurname());
             user.setEmail(userDto.getEmail());
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
             user.setBirthDate(userDto.getBirthDate());
             user.setOrders(userDto.getOrders().stream().map(orderConverter::fromDto).toList());
+            user.setRoles(List.of(Role.builder().id(2).name("USER").build()));
             userRepository.save(user);
         } else {
             throw new IncorrectRepPasswordException("пароли не совпадают");
@@ -67,7 +74,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public void delete(int id) {
         userRepository.deleteById(id);
-
     }
 
     @Override
@@ -84,7 +90,7 @@ public class UserServiceImpl implements UserService {
     public void update(int id, UpdateUserDto userDto) {
         User user = userRepository.findById(id);
         user.setEmail(userDto.getEmail());
-        user.setPassword(userDto.getPassword());
+        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
         userRepository.save(user);
     }
 
@@ -101,6 +107,11 @@ public class UserServiceImpl implements UserService {
         } else {
             return Collections.emptyList();
         }
+    }
+
+    @Override
+    public Optional<User> findByLogin(String login) {
+        return userRepository.findByLogin(login);
     }
 
 }
