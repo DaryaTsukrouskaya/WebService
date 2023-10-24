@@ -32,8 +32,8 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public JwtResponseDto login(@NonNull JwtRequestDto jwtRequestDto) throws AuthorizationException {
-        Optional<User> user = Optional.ofNullable(userRepository.findByLogin(jwtRequestDto.getLogin()).orElseThrow(() -> new AuthorizationException("пользователь не найден")));
-        if (user.isPresent() && user.get().getPassword().equals(passwordEncoder.encode(jwtRequestDto.getPassword()))) {
+        Optional<User> user = Optional.ofNullable(userRepository.findByEmail(jwtRequestDto.getLogin()).orElseThrow(() -> new AuthorizationException("пользователь не найден")));
+        if (user.isPresent() && passwordEncoder.matches(user.get().getPassword(), jwtRequestDto.getPassword())) {
             String accessToken = jwtProvider.GenerateAccessToken(jwtRequestDto.getLogin());
             String refreshToken = jwtProvider.GenerateRefreshToken(jwtRequestDto.getLogin());
             Token refreshTokenFromRepository = tokenRepository.findByUsername(jwtRequestDto.getLogin());
@@ -82,7 +82,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public Optional<UserDto> getPrincipal() {
-        return userRepository.findByLogin(((org.springframework.security.core.userdetails.User) SecurityContextHolder.getContext().getAuthentication().
+        return userRepository.findByEmail(((org.springframework.security.core.userdetails.User) SecurityContextHolder.getContext().getAuthentication().
                 getPrincipal()).getUsername()).map(userConverter::toDto);
     }
 }

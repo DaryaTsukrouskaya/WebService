@@ -1,6 +1,5 @@
 package by.teachmeskills.webservice.services.impl;
 
-import by.teachmeskills.webservice.dto.LoginUserDto;
 import by.teachmeskills.webservice.dto.OrderDto;
 import by.teachmeskills.webservice.dto.UserDto;
 import by.teachmeskills.webservice.dto.converters.OrderConverter;
@@ -15,6 +14,7 @@ import by.teachmeskills.webservice.services.CategoryService;
 import by.teachmeskills.webservice.services.ProductService;
 import by.teachmeskills.webservice.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -38,7 +38,7 @@ public class UserServiceImpl implements UserService {
 
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, CategoryServiceImpl categoryRepository, ProductServiceImpl productService, OrderConverter orderConverter, UserConverter userConverter, OrderRepository orderRepository, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepository userRepository, CategoryServiceImpl categoryRepository, ProductServiceImpl productService, OrderConverter orderConverter, UserConverter userConverter, OrderRepository orderRepository,@Lazy PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.categoryService = categoryRepository;
         this.productService = productService;
@@ -82,11 +82,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto authenticate(LoginUserDto user) {
-        return userConverter.toDto(userRepository.findByEmailAndPassword(user.getEmail(), user.getPassword()));
-    }
-
-    @Override
     public void update(int id, UpdateUserDto userDto) {
         User user = userRepository.findById(id);
         user.setEmail(userDto.getEmail());
@@ -111,7 +106,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Optional<User> findByLogin(String login) {
-        return userRepository.findByLogin(login);
+        return userRepository.findByEmail(login);
     }
 
 }

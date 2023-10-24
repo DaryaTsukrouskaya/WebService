@@ -24,6 +24,7 @@ public class WebSecurityConfig {
         this.jwtFilter = jwtFilter;
     }
 
+    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(CsrfConfigurer::disable)

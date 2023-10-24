@@ -20,11 +20,9 @@ public interface UserService {
 
     UserDto findById(int id);
 
-    UserDto authenticate(LoginUserDto user);
-
     void update(int id, UpdateUserDto updateUserDto);
 
     List<OrderDto> getUserOrdersPaged(int id, int pageNumber, int pageSize);
 
-     Optional<User>  findByLogin(String login);
+    Optional<User> findByLogin(String login);
 }

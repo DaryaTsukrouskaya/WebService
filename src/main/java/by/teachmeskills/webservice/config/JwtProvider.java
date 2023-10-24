@@ -1,6 +1,5 @@
 package by.teachmeskills.webservice.config;
 
-
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -23,12 +22,11 @@ import java.util.Date;
 @Slf4j
 @Component
 public class JwtProvider {
-
     private final SecretKey jwtAccessSecret;
 
     private final SecretKey jwtRefreshSecret;
 
-    public JwtProvider(@Value("$(jwt.secret.access)") String jwtAccessSecret, @Value("$jwt.secret.refresh") String jwtRefreshSecret) {
+    public JwtProvider(@Value("${jwt.secret.access}") String jwtAccessSecret, @Value("${jwt.secret.refresh}") String jwtRefreshSecret) {
         this.jwtAccessSecret = Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtAccessSecret));
         this.jwtRefreshSecret = Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtRefreshSecret));
     }
@@ -45,14 +43,14 @@ public class JwtProvider {
     }
 
     public boolean validateAccessToken(@NonNull String token) {
-        return validateToken(token,jwtAccessSecret);
+        return validateToken(token, jwtAccessSecret);
     }
 
     public boolean validateRefreshToken(@NonNull String token) {
-        return validateToken(token,jwtRefreshSecret);
+        return validateToken(token, jwtRefreshSecret);
     }
 
-    public boolean validateToken(@NonNull String token,@NonNull Key secret) {
+    public boolean validateToken(@NonNull String token, @NonNull Key secret) {
         try {
             Jwts.parser().setSigningKey(secret).parseClaimsJws(token);
             return true;
