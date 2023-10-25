@@ -1,5 +1,7 @@
 package by.teachmeskills.webservice.config;
 
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
@@ -15,6 +17,7 @@ import org.springframework.context.annotation.Configuration;
 import java.util.List;
 
 @Configuration
+@OpenAPIDefinition(security = {@SecurityRequirement(name = "Bearer Authentication")})
 public class OpenApiConfig {
     @Bean
     public GroupedOpenApi publicCartApi() {
@@ -65,8 +68,8 @@ public class OpenApiConfig {
                         .description(appDescription)
                         .license(new License().name("Apache 2.0")
                                 .url("http://springdoc.org"))
-                        .contact(new Contact().name("TeachMeSkills")
-                                .email("tms@gmail.com")))
+                        .contact(new Contact().name("Darya Tsukrouskaya")
+                                .email("darya.raikhert.31@mail.ru")))
                 .servers(List.of(new Server().url("http://localhost:8080")
                         .description("Dev service"))).components(new Components().addSecuritySchemes("Bearer Authentication", createSecurityScheme()));
     }

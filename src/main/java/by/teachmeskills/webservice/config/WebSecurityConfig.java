@@ -30,9 +30,10 @@ public class WebSecurityConfig {
                 .csrf(CsrfConfigurer::disable)
                 .sessionManagement(conf -> conf.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-                .authorizeHttpRequests(auth -> auth.requestMatchers(new AntPathRequestMatcher("/**/profile/**")
-                                , new AntPathRequestMatcher("/**/loadCsvFile/**"), new AntPathRequestMatcher("/**/loadFromFile/**"),
-                                new AntPathRequestMatcher("/**/createOrder/**")).authenticated()
+                .authorizeHttpRequests(auth -> auth
+//                requestMatchers(new AntPathRequestMatcher("/**/profile/**")
+//                                , new AntPathRequestMatcher("/**/loadCsvFile/**"), new AntPathRequestMatcher("/**/loadFromFile/**"),
+//                                new AntPathRequestMatcher("/**/createOrder/**")).authenticated()
                         .anyRequest().permitAll());
         return http.build();
     }

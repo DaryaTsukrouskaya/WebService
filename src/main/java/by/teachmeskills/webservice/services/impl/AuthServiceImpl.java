@@ -33,7 +33,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public JwtResponseDto login(@NonNull JwtRequestDto jwtRequestDto) throws AuthorizationException {
         Optional<User> user = Optional.ofNullable(userRepository.findByEmail(jwtRequestDto.getLogin()).orElseThrow(() -> new AuthorizationException("пользователь не найден")));
-        if (user.isPresent() && passwordEncoder.matches(user.get().getPassword(), jwtRequestDto.getPassword())) {
+        if (user.isPresent() && passwordEncoder.matches(jwtRequestDto.getPassword(), user.get().getPassword())) {
             String accessToken = jwtProvider.GenerateAccessToken(jwtRequestDto.getLogin());
             String refreshToken = jwtProvider.GenerateRefreshToken(jwtRequestDto.getLogin());
             Token refreshTokenFromRepository = tokenRepository.findByUsername(jwtRequestDto.getLogin());
