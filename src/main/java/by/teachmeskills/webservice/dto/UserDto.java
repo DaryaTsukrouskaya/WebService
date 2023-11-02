@@ -24,7 +24,7 @@ public class UserDto {
     @NotBlank(message = "имя не должно быть пустым")
     @Pattern(regexp = "^[а-яА-Яa-zA-Z]+$", message = "некорректное имя")
     private String name;
-    @NotNull(message = "фамилия не должна быть пустым")
+    @NotNull(message = "фамилия не должна быть пустой")
     @NotBlank(message = "фамилия не должна быть пустой")
     @Pattern(regexp = "^[а-яА-Яa-zA-Z]+$", message = "некорректная фамилия")
     private String surname;
@@ -46,7 +46,6 @@ public class UserDto {
             message = "пароль не должен содержать пробелы")
     private String repPassword;
     private List<OrderDto> orders;
-    @NotNull(message = "Empty user roles")
     private List<RoleDto> roles;
 }
 
