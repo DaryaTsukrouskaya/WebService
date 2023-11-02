@@ -1,7 +1,7 @@
 package by.teachmeskills.webservice.services;
 
-import by.teachmeskills.webservice.dto.KeyWordsDto;
 import by.teachmeskills.webservice.dto.ProductDto;
+import by.teachmeskills.webservice.dto.SearchParamsDto;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import jakarta.servlet.http.HttpServletResponse;
@@ -27,5 +27,9 @@ public interface ProductService {
 
     List<ProductDto> getProductsByCategory(int id);
 
-    List<ProductDto> searchProductsPaged(int pageNumber, KeyWordsDto keyWords);
+    List<ProductDto> getProductsByCategoryPaged(int id, int pageNumber, int pageSize);
+
+    List<ProductDto> searchProductsByKeyWords(String keyWords, int pageNumber, int pageSize);
+
+    List<ProductDto> advancedSearch(SearchParamsDto searchParamsDto, int pageNumber, int pageSize);
 }

@@ -2,11 +2,14 @@ package by.teachmeskills.webservice.services;
 
 
 import by.teachmeskills.webservice.dto.LoginUserDto;
+import by.teachmeskills.webservice.dto.OrderDto;
 import by.teachmeskills.webservice.dto.UserDto;
 import by.teachmeskills.webservice.dto.UpdateUserDto;
+import by.teachmeskills.webservice.entities.User;
 import by.teachmeskills.webservice.exceptions.IncorrectRepPasswordException;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface UserService {
     List<UserDto> read();
@@ -17,7 +20,9 @@ public interface UserService {
 
     UserDto findById(int id);
 
-    UserDto authenticate(LoginUserDto user);
-
     void update(int id, UpdateUserDto updateUserDto);
+
+    List<OrderDto> getUserOrdersPaged(int id, int pageNumber, int pageSize);
+
+    Optional<User> findByLogin(String login);
 }

@@ -1,7 +1,7 @@
 package by.teachmeskills.webservice.controllers;
 
-import by.teachmeskills.webservice.dto.KeyWordsDto;
 import by.teachmeskills.webservice.dto.ProductDto;
+import by.teachmeskills.webservice.dto.SearchParamsDto;
 import by.teachmeskills.webservice.exceptions.ValidationException;
 import by.teachmeskills.webservice.services.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,10 +15,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 
@@ -35,8 +35,8 @@ public class ProductSearchController {
     }
 
     @Operation(
-            summary = "Find certain products",
-            description = "Get first search result of products",
+            summary = "Find products by keywords",
+            description = "Find certain products which name or description contains keywords",
             tags = {"search"})
     @ApiResponses(value = {
             @ApiResponse(
@@ -49,18 +49,14 @@ public class ProductSearchController {
                     description = "Products not found - server error"
             )
     })
-    @PostMapping("/searchResult")
-    public ResponseEntity<List<ProductDto>> searchResult(@RequestBody @Valid KeyWordsDto keyWords, BindingResult bindingResult) throws ValidationException {
-        if (!bindingResult.hasErrors()) {
-            return new ResponseEntity<>(productService.searchProductsPaged(keyWords.getCurrentPageNumber(), keyWords), HttpStatus.OK);
-        } else {
-            throw new ValidationException(bindingResult.getFieldError().getDefaultMessage());
-        }
+    @PostMapping("/byKeywords")
+    public ResponseEntity<List<ProductDto>> searchByNameOrDescription(@RequestParam("keywords") String keywords, @RequestParam(name = "page", defaultValue = "0") int pageNumber, @RequestParam(name = "size", defaultValue = "2") int pageSize) {
+        return new ResponseEntity<>(productService.searchProductsByKeyWords(keywords, pageNumber, pageSize), HttpStatus.OK);
     }
 
     @Operation(
-            summary = "Find certain products",
-            description = "Get search result of products according to chosen page",
+            summary = "Find products by parameters",
+            description = "Find products by specific parameters like price and category",
             tags = {"search"})
     @ApiResponses(value = {
             @ApiResponse(
@@ -73,12 +69,12 @@ public class ProductSearchController {
                     description = "Products not found - server error"
             )
     })
-    @GetMapping("/{pageNumber}")
-    public ResponseEntity<List<ProductDto>> certainSearchPage(@PathVariable int pageNumber, @Valid @RequestBody KeyWordsDto keyWords, BindingResult bindingResult) throws ValidationException {
-        if (!bindingResult.hasErrors()) {
-            return new ResponseEntity<>(productService.searchProductsPaged(pageNumber, keyWords), HttpStatus.OK);
+    @GetMapping("/advancedSearch")
+    public ResponseEntity<List<ProductDto>> advancedSearch(@Valid @RequestBody SearchParamsDto searchParamsDto, @RequestParam(name = "page", defaultValue = "0") int pageNumber, @RequestParam(name = "size", defaultValue = "2") int pageSize, BindingResult result) throws ValidationException {
+        if (!result.hasErrors()) {
+            return new ResponseEntity<>(productService.advancedSearch(searchParamsDto, pageNumber, pageSize), HttpStatus.OK);
         } else {
-            throw new ValidationException(bindingResult.getFieldError().getDefaultMessage());
+            throw new ValidationException(result.getFieldError().getDefaultMessage());
         }
     }
 

@@ -1,12 +1,7 @@
 package by.teachmeskills.webservice.controllers;
 
-
-import by.teachmeskills.webservice.dto.CategoryDto;
-import by.teachmeskills.webservice.dto.LoginUserDto;
-import by.teachmeskills.webservice.dto.ProductDto;
 import by.teachmeskills.webservice.dto.UserDto;
 import by.teachmeskills.webservice.dto.UpdateUserDto;
-import by.teachmeskills.webservice.exceptions.IncorrectRepPasswordException;
 import by.teachmeskills.webservice.exceptions.ValidationException;
 import by.teachmeskills.webservice.services.CategoryService;
 import by.teachmeskills.webservice.services.UserService;
@@ -21,11 +16,11 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -84,31 +79,9 @@ public class UserController {
             )
     })
     @GetMapping("/all")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<List<UserDto>> getAll() {
         return new ResponseEntity<>(userService.read(), HttpStatus.OK);
-    }
-
-    @Operation(
-            summary = "Create user",
-            description = "Create new user",
-            tags = {"user"})
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "201",
-                    description = "User was created"
-            ),
-            @ApiResponse(
-                    responseCode = "400",
-                    description = "User was not created - server error"
-            )
-    })
-    @PostMapping("/create")
-    public void create(@Valid @RequestBody UserDto userDto, BindingResult bindingResult) throws ValidationException, IncorrectRepPasswordException {
-        if (!bindingResult.hasErrors()) {
-            userService.register(userDto);
-        } else {
-            throw new ValidationException(bindingResult.getFieldError().getDefaultMessage());
-        }
     }
 
     @Operation(
@@ -149,32 +122,9 @@ public class UserController {
             )
     })
     @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public void delete(@PathVariable @Min(0) Integer id) {
         userService.delete(id);
     }
 
-    @Operation(summary = "Authenticate user",
-            description = "Authenticate user in eshop",
-            tags = {"user"})
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "User was authenticated",
-                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = CategoryDto.class)))
-            ),
-            @ApiResponse(
-                    responseCode = "400",
-                    description = "User was not authenticated - server error"
-            )
-    }
-    )
-    @PostMapping("/authenticate")
-    ResponseEntity<List<CategoryDto>> authenticate(@RequestBody @Valid LoginUserDto userDto, BindingResult bindingResult) throws ValidationException {
-        if (!bindingResult.hasErrors()) {
-            userService.authenticate(userDto);
-            return new ResponseEntity<>(categoryService.read(), HttpStatus.OK);
-        } else {
-            throw new ValidationException(bindingResult.getFieldError().getDefaultMessage());
-        }
-    }
 }

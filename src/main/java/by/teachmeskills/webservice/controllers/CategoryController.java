@@ -20,9 +20,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
-import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -35,6 +35,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.io.IOException;
 import java.util.List;
@@ -130,6 +131,7 @@ public class CategoryController {
                     description = "Category not created - server error"
             )
     })
+    @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/create")
     public void createCategory(@Valid @RequestBody CategoryDto categoryDto, BindingResult bindingResult) throws ValidationException {
         if (!bindingResult.hasErrors()) {
@@ -155,6 +157,7 @@ public class CategoryController {
             )
     })
     @PutMapping("/update")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public void updateCategory(@RequestBody @Valid CategoryDto categoryDto, BindingResult bindingResult) throws ValidationException {
         if (!bindingResult.hasErrors()) {
             categoryService.update(categoryDto);
@@ -178,6 +181,7 @@ public class CategoryController {
             )
     })
     @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public void deleteCategory(@PathVariable @Min(0) Integer id) {
         categoryService.delete(id);
     }
@@ -189,14 +193,15 @@ public class CategoryController {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Categories was loaded",
+                    description = "Categories were loaded",
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = CategoryDto.class)))
             ),
             @ApiResponse(
                     responseCode = "400",
-                    description = "Categories was not loaded - server error"
+                    description = "Categories were not loaded - server error"
             )
     })
+    @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/loadFromFile")
     public ResponseEntity<CategoryDto> loadFromFile(@RequestParam("file") MultipartFile file) {
         return new ResponseEntity(categoryService.saveCategoriesFromFile(file), HttpStatus.OK);
@@ -209,16 +214,37 @@ public class CategoryController {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Categories was saved"
+                    description = "Categories were saved"
             ),
             @ApiResponse(
                     responseCode = "400",
-                    description = "Categories was not loaded - server error"
+                    description = "Categories were not loaded - server error"
             )
     })
+    @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/loadCsvFile")
     public void loadToFile(HttpServletResponse servletResponse) throws CsvRequiredFieldEmptyException, CsvDataTypeMismatchException, IOException {
         categoryService.saveCategoriesToFile(servletResponse);
+    }
+
+    @Operation(
+            summary = "Get paged products",
+            description = "Get paged products of certain category",
+            tags = {"category"})
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Products were found"
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Products were not found",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = ProductDto.class)))
+            )
+    })
+    @GetMapping("/productsPaged/{id}")
+    public ResponseEntity<List<ProductDto>> getCategoryProductsPaged(@PathVariable int id, @RequestParam(name = "page", defaultValue = "0") int pageNumber, @RequestParam(name = "size", defaultValue = "2") int pageSize) {
+        return new ResponseEntity<>(productService.getProductsByCategoryPaged(id, pageNumber, pageSize), HttpStatus.OK);
     }
 }
 

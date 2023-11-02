@@ -23,6 +23,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -156,6 +157,7 @@ public class CartController {
                     description = "Order was not created - server error"
             )
     })
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/createOrder")
     public ResponseEntity<OrderDto> buy(@Valid @RequestBody CartDto cart, @Valid @RequestBody UserDto user, @PathVariable String address, BindingResult bindingResult) throws ValidationException, NoOrderAddressException {
         if (!bindingResult.hasErrors()) {

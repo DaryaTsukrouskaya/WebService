@@ -1,5 +1,6 @@
 package by.teachmeskills.webservice.controllers;
 
+import by.teachmeskills.webservice.dto.OrderDto;
 import by.teachmeskills.webservice.dto.UserDto;
 import by.teachmeskills.webservice.services.UserService;
 import by.teachmeskills.webservice.services.impl.UserServiceImpl;
@@ -12,11 +13,15 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Min;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 
 @RestController
@@ -45,8 +50,9 @@ public class UserProfileController {
                     description = "User not found - server error"
             )
     })
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/{id}")
-    public ResponseEntity<UserDto> getUserData(@PathVariable @Min(0) int id) {
-        return new ResponseEntity<>(userService.findById(id), HttpStatus.OK);
+    public ResponseEntity<List<OrderDto>> getUserOrdersPaged(@PathVariable @Min(0) int id, @RequestParam(name = "page", defaultValue = "0") int pageNumber, @RequestParam(name = "size", defaultValue = "2") int pageSize) {
+        return new ResponseEntity<>(userService.getUserOrdersPaged(id, pageNumber, pageSize), HttpStatus.OK);
     }
 }

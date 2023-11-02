@@ -1,12 +1,12 @@
 package by.teachmeskills.webservice.services.impl;
 
-import by.teachmeskills.webservice.dto.KeyWordsDto;
 import by.teachmeskills.webservice.dto.ProductDto;
+import by.teachmeskills.webservice.dto.SearchParamsDto;
 import by.teachmeskills.webservice.dto.converters.ProductConverter;
 import by.teachmeskills.webservice.entities.Product;
 import by.teachmeskills.webservice.repositories.CategoryRepository;
 import by.teachmeskills.webservice.repositories.ProductRepository;
-import by.teachmeskills.webservice.repositories.impl.ProductRepositoryImpl;
+import by.teachmeskills.webservice.repositories.ProductSearchSpecification;
 import by.teachmeskills.webservice.services.ProductService;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
@@ -17,6 +17,9 @@ import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -39,7 +42,7 @@ public class ProductServiceImpl implements ProductService {
     private final CategoryRepository categoryRepository;
 
     @Autowired
-    public ProductServiceImpl(ProductRepositoryImpl productRepository, ProductConverter productConverter, CategoryRepository categoryRepository) {
+    public ProductServiceImpl(ProductRepository productRepository, ProductConverter productConverter, CategoryRepository categoryRepository) {
         this.productRepository = productRepository;
         this.productConverter = productConverter;
         this.categoryRepository = categoryRepository;
@@ -48,7 +51,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<ProductDto> read() {
-        return productRepository.read().stream().map(productConverter::toDto).toList();
+        return productRepository.findAll().stream().map(productConverter::toDto).toList();
     }
 
     @Override
@@ -59,13 +62,13 @@ public class ProductServiceImpl implements ProductService {
         product.setDescription(product.getDescription());
         product.setImagePath(product.getImagePath());
         product.setCategory(categoryRepository.findById(productDto.getCategoryId()));
-        productRepository.create(product);
+        productRepository.save(product);
 
     }
 
     @Override
     public void delete(int id) {
-        productRepository.delete(id);
+        productRepository.deleteById(id);
     }
 
     @Override
@@ -75,7 +78,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<ProductDto> getProductsByCategory(int id) {
-        return productRepository.getProductsByCategory(id).stream().map(productConverter::toDto).toList();
+        return productRepository.findByCategoryId(id).stream().map(productConverter::toDto).toList();
 
     }
 
@@ -87,29 +90,7 @@ public class ProductServiceImpl implements ProductService {
         product.setPrice(productDto.getPrice());
         product.setImagePath(productDto.getImagePath());
         product.setCategory(categoryRepository.findById(productDto.getCategoryId()));
-        productRepository.update(product);
-    }
-
-    @Override
-    public List<ProductDto> searchProductsPaged(int pageNumber, KeyWordsDto keyWordsDto) {
-        keyWordsDto.setCurrentPageNumber(pageNumber);
-        if (keyWordsDto.getCurrentPageNumber() > 3) {
-            keyWordsDto.setCurrentPageNumber(keyWordsDto.getCurrentPageNumber() - 1);
-            pageNumber -= 1;
-        }
-        if (keyWordsDto.getCurrentPageNumber() < 1) {
-            keyWordsDto.setCurrentPageNumber(keyWordsDto.getCurrentPageNumber() + 1);
-            pageNumber += 1;
-        }
-        Long totalRecords;
-        List<Product> products = null;
-        int pageMaxResult;
-        if (keyWordsDto.getKeyWords() != null) {
-            totalRecords = productRepository.findProductsQuantityByKeywords(keyWordsDto.getKeyWords());
-            pageMaxResult = (int) (totalRecords / 3);
-            products = productRepository.findProductsByKeywords(keyWordsDto.getKeyWords(), pageNumber, pageMaxResult);
-        }
-        return products.stream().map(productConverter::toDto).toList();
+        productRepository.save(product);
     }
 
     @Override
@@ -117,7 +98,7 @@ public class ProductServiceImpl implements ProductService {
         List<ProductDto> csvProducts = parseCsv(file);
         List<Product> products = Optional.ofNullable(csvProducts).map(list -> list.stream().map(productConverter::fromDto).toList()).orElse(null);
         if (Optional.ofNullable(products).isPresent()) {
-            products.forEach(productRepository::create);
+            products.forEach(productRepository::save);
             return products.stream().map(productConverter::toDto).toList();
         }
         return Collections.emptyList();
@@ -140,7 +121,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void saveProductsToFile(HttpServletResponse servletResponse, int id) throws IOException, CsvRequiredFieldEmptyException, CsvDataTypeMismatchException {
-        List<ProductDto> products = productRepository.getProductsByCategory(id).stream().map(productConverter::toDto).toList();
+        List<ProductDto> products = productRepository.findByCategoryId(id).stream().map(productConverter::toDto).toList();
         try (Writer writer = new OutputStreamWriter(servletResponse.getOutputStream())) {
             StatefulBeanToCsv<ProductDto> statefulBeanToCsv = new StatefulBeanToCsvBuilder<ProductDto>(writer).withSeparator(';').build();
             servletResponse.setContentType("text/csv");
@@ -150,4 +131,41 @@ public class ProductServiceImpl implements ProductService {
 
     }
 
+    @Override
+    public List<ProductDto> getProductsByCategoryPaged(int id, int pageNumber, int pageSize) {
+        if (pageNumber < 0) {
+            pageNumber = 0;
+        }
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by("name").ascending());
+        List<Product> productList = productRepository.findByCategoryId(id, pageable).getContent();
+        if (productList.isEmpty()) {
+            pageNumber -= pageNumber;
+            pageable = PageRequest.of(pageNumber, pageSize, Sort.by("name").ascending());
+            productList = productRepository.findByCategoryId(id, pageable).getContent();
+        }
+        return productList.stream().map(productConverter::toDto).toList();
+    }
+
+    @Override
+    public List<ProductDto> searchProductsByKeyWords(String keywords, int pageNumber, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by("name").ascending());
+        List<Product> products = productRepository.findByKeyWords(keywords, pageable).getContent();
+        return products.stream().map(productConverter::toDto).toList();
+    }
+
+    @Override
+    public List<ProductDto> advancedSearch(SearchParamsDto searchParamsDto, int pageNumber, int pageSize) {
+        if (pageNumber < 0) {
+            pageNumber = 0;
+        }
+        ProductSearchSpecification specification = new ProductSearchSpecification(searchParamsDto);
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by("name").ascending());
+        List<Product> products = productRepository.findAll(specification, pageable).getContent();
+        if (products.isEmpty() && pageNumber > 0) {
+            pageNumber -= 1;
+            pageable = PageRequest.of(pageNumber, pageSize, Sort.by("name").ascending());
+            products = productRepository.findAll(specification, pageable).getContent();
+        }
+        return products.stream().map(productConverter::toDto).toList();
+    }
 }
