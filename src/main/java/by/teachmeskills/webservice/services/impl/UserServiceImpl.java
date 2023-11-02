@@ -62,7 +62,6 @@ public class UserServiceImpl implements UserService {
             user.setEmail(userDto.getEmail());
             user.setPassword(passwordEncoder.encode(userDto.getPassword()));
             user.setBirthDate(userDto.getBirthDate());
-            user.setOrders(userDto.getOrders().stream().map(orderConverter::fromDto).toList());
             user.setRoles(List.of(Role.builder().id(2).name("USER").build()));
             userRepository.save(user);
         } else {
