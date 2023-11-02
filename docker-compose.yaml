@@ -1,0 +1,38 @@
+version: "2.18.1"
+services:
+  mysqldb:
+    image: mysql:8
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 1111
+      MYSQL_DATABASE: shop
+    ports:
+      - "3306:3306"
+    volumes:
+      - shop_db_data:/var/lib/shop
+    networks:
+      - restwebservice
+
+  restwebservice:
+    container_name: lingere_shop
+    restart: always
+    depends_on:
+      - mysqldb
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      SERVER_PORT: 8080
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb/shop
+    networks:
+      - restwebservice
+volumes:
+  shop_db_data:
+networks:
+  restwebservice:
+
+
+
