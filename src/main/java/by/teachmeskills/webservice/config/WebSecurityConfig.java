@@ -12,7 +12,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @EnableWebSecurity
 @EnableMethodSecurity(securedEnabled = true, jsr250Enabled = true)
@@ -30,11 +29,7 @@ public class WebSecurityConfig {
                 .csrf(CsrfConfigurer::disable)
                 .sessionManagement(conf -> conf.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-                .authorizeHttpRequests(auth -> auth
-//                requestMatchers(new AntPathRequestMatcher("/**/profile/**")
-//                                , new AntPathRequestMatcher("/**/loadCsvFile/**"), new AntPathRequestMatcher("/**/loadFromFile/**"),
-//                                new AntPathRequestMatcher("/**/createOrder/**")).authenticated()
-                        .anyRequest().permitAll());
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
         return http.build();
     }
 

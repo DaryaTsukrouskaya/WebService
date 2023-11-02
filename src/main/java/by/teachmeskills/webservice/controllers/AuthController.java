@@ -3,8 +3,12 @@ package by.teachmeskills.webservice.controllers;
 import by.teachmeskills.webservice.dto.JwtRequestDto;
 import by.teachmeskills.webservice.dto.JwtResponseDto;
 import by.teachmeskills.webservice.dto.RefreshJwtRequestDto;
+import by.teachmeskills.webservice.dto.UserDto;
 import by.teachmeskills.webservice.exceptions.AuthorizationException;
+import by.teachmeskills.webservice.exceptions.IncorrectRepPasswordException;
+import by.teachmeskills.webservice.exceptions.ValidationException;
 import by.teachmeskills.webservice.services.AuthService;
+import by.teachmeskills.webservice.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -15,6 +19,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,6 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
+    private final UserService userService;
 
     @Operation(summary = "Authenticate user",
             description = "User authentication  in eshop by email and password with returning access and refresh tokens",
@@ -77,5 +83,28 @@ public class AuthController {
     @PostMapping("/refresh")
     public ResponseEntity getNewRefreshToken(@Valid @RequestBody RefreshJwtRequestDto refreshJwtRequestDto) throws AuthorizationException {
         return new ResponseEntity<>(authService.refresh(refreshJwtRequestDto.getRefreshToken()), HttpStatus.OK);
+    }
+
+    @Operation(
+            summary = "Register user",
+            description = "Register new user",
+            tags = {"auth"})
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "User was created"
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "User was not created - server error"
+            )
+    })
+    @PostMapping("/register")
+    public void create(@Valid @RequestBody UserDto userDto, BindingResult bindingResult) throws IncorrectRepPasswordException, ValidationException {
+        if (!bindingResult.hasErrors()) {
+            userService.register(userDto);
+        } else {
+            throw new ValidationException(bindingResult.getFieldError().getDefaultMessage());
+        }
     }
 }
